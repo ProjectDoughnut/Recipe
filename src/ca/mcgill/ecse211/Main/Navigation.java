@@ -1,6 +1,5 @@
-package ca.mcgill.ecse211.Lab5;
+package ca.mcgill.ecse211.Main;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import ca.mcgill.ecse211.Gyro.AngleSampler;
@@ -16,6 +15,7 @@ public class Navigation extends Thread{
 
 	private EV3LargeRegulatedMotor leftMotor;
 	private EV3LargeRegulatedMotor rightMotor;
+	
 	private static final int FORWARD_SPEED = 200;
 	private static final int ROTATE_SPEED = 130;
 	private final double WHEEL_RAD;
@@ -61,7 +61,7 @@ public class Navigation extends Thread{
 
 
 	/**
-	 * Adds the navigation points to the coordList, setting up the thread
+	 * Adds the navigation points to the _coordList
 	 * 
 	 * @param navX coordinate of position
 	 * @param navY coordinate of position
@@ -70,7 +70,11 @@ public class Navigation extends Thread{
 		this._coordsList.add(new double[] {navX*TILE_SIZE, navY*TILE_SIZE});
 	}
 
-	//The run method runs through the _coordsList and travels through the points
+	/**
+	 * Navigates to all coordinates sotred in _coordsList
+	 * 
+	 * @see java.lang.Thread#run()
+	 */
 	public void run() {
 		this.running = true;
 		while (!this._coordsList.isEmpty()) {
@@ -83,6 +87,13 @@ public class Navigation extends Thread{
 		this.running = false;
 	}
 
+	/**
+	 * Synchronized travel to navX, navY.
+	 * 
+	 * @param navX
+	 * @param navY
+	 * @return boolean True if navigation complete successfully
+	 */
 	boolean _travelTo(double navX, double navY) {
 
 		// get current coordinates
@@ -175,6 +186,14 @@ public class Navigation extends Thread{
 		return true;
 	}
 
+	
+	
+	/**
+	 * Call synchonized _travelTo function when running ouside a seperate thread instance.
+	 * 
+	 * @param navX
+	 * @param navY
+	 */
 	public void syncTravelTo(double navX, double navY) {
 		_travelTo(navX*TILE_SIZE, navY*TILE_SIZE);
 	}
@@ -203,21 +222,27 @@ public class Navigation extends Thread{
 		this.isNavigating = false;
 	}
 
+	
+	
+	/**
+	 * Synchronized public turn method
+	 * 
+	 * @param currTheta
+	 * @param destTheta
+	 */
 	public void turnTo(double currTheta, double destTheta) {
 		_turnTo(currTheta, destTheta);
 	}
-
-	//Getting the minimum angle to turn:
-	//It is easier to turn +90 than -270
-	//Also, it is easier to turn -90 than +270
+	
+	
+	/**
+	 * Normalized the angle so that the turn is always < 180 degrees
+	 * 
+	 * @param theta
+	 * @return
+	 */
 	double normalizeAngle(double theta) {
-		if (theta <= -180) {
-			theta += 360;
-		}
-		else if (theta > 180) {
-			theta -= 360;
-		}
-		return theta;
+		return (((theta-180)%360+360)%360)-180;
 	}
 
 

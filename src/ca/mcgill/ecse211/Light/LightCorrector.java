@@ -1,6 +1,6 @@
 package ca.mcgill.ecse211.Light;
 
-import ca.mcgill.ecse211.Lab5.Main;
+import ca.mcgill.ecse211.Main.Main;
 import ca.mcgill.ecse211.Odometer.Odometer;
 import ca.mcgill.ecse211.Odometer.OdometerExceptions;
 

@@ -17,7 +17,6 @@ public class UltrasonicPoller extends Thread {
 
 	public volatile boolean running = true;
 
-
 	public UltrasonicPoller(SampleProvider us, UltrasonicController cont) {
 		this.us = us;
 		this.cont = cont;
@@ -26,9 +25,9 @@ public class UltrasonicPoller extends Thread {
 	}
 
 
-	/*
-	 * Sensors now return floats using a uniform protocol. Need to convert US result to an integer
-	 * [0,255] (non-Javadoc)
+	/**
+	 * Poller which pass the sensor information to its corresponding controller.
+	 * Has a lock mechanism to sleep the thread.
 	 * 
 	 * @see java.lang.Thread#run()
 	 */

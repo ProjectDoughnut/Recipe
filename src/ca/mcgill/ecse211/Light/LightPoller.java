@@ -17,9 +17,9 @@ public class LightPoller extends Thread {
 		this.running = true;
 	}
 
-	/*
-	 * Sensors now return floats using a uniform protocol. Need to convert LS result to an integer
-	 * [0,255] (non-Javadoc)
+	/**
+	 * Poller which pass the sensor information to its corresponding controller.
+	 * Has a lock mechanism to sleep the thread.
 	 * 
 	 * @see java.lang.Thread#run()
 	 */

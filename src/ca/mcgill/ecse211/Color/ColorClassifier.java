@@ -2,7 +2,7 @@ package ca.mcgill.ecse211.Color;
 
 import java.util.ArrayList;
 
-import ca.mcgill.ecse211.Lab5.Navigation;
+import ca.mcgill.ecse211.Main.Navigation;
 import ca.mcgill.ecse211.Odometer.Odometer;
 import lejos.hardware.Sound;
 

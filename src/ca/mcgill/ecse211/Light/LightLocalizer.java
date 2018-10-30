@@ -1,7 +1,7 @@
 package ca.mcgill.ecse211.Light;
 
 
-import ca.mcgill.ecse211.Lab5.Navigation;
+import ca.mcgill.ecse211.Main.Navigation;
 import ca.mcgill.ecse211.Odometer.Odometer;
 
 import lejos.hardware.Sound;
@@ -90,6 +90,8 @@ public class LightLocalizer implements LightController{
 			break;
 
 		case SEEK:
+			linePos = odo.getXYT();
+			
 			// start rotating to find the lines
 			odo.leftMotor.backward();
 			odo.rightMotor.forward();
@@ -105,8 +107,7 @@ public class LightLocalizer implements LightController{
 					odo.rightMotor.stop(false);
 					this.state = LocalizationState.CORRECTION;
 				}
-				linePos = odo.getXYT();
-
+				
 				lineAngles[lineCount] = linePos[2];
 
 				Sound.beep();

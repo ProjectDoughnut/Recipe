@@ -18,9 +18,9 @@ public class ColorPoller extends Thread {
 		this.rgbValues = new float[3];
 	}
 
-	/*
-	 * Sensors now return floats using a uniform protocol.
-	 * [0,255] (non-Javadoc)
+	/**
+	 * Poller which pass the sensor information to its corresponding controller.
+	 * Has a lock mechanism to sleep the thread.
 	 * 
 	 * @see java.lang.Thread#run()
 	 */
