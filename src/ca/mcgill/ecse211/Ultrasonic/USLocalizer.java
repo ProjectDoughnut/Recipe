@@ -157,8 +157,8 @@ public class USLocalizer extends Thread implements UltrasonicController{
 					
 
 					//Rotate in the direction of thetaZero
-					leftMotor.rotate(convertAngle(odo.WHEEL_RAD, odo.TRACK, thetaZero + TURN_ERROR), true);
-					rightMotor.rotate(-convertAngle(odo.WHEEL_RAD, odo.TRACK, thetaZero + TURN_ERROR), false);
+					leftMotor.rotate(convertAngle(odo.WHEEL_RAD, odo.TRACK, thetaZero + TURN_ERROR + 180), true);
+					rightMotor.rotate(-convertAngle(odo.WHEEL_RAD, odo.TRACK, thetaZero + TURN_ERROR + 180), false);
 
 					leftMotor.stop();
 					rightMotor.stop();

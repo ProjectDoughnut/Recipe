@@ -111,9 +111,9 @@ public class Main {
 			// ask the user whether the motors should drive in a square or float
 			lcd.drawString("< Left | Right >", 0, 0);
 			lcd.drawString("       |        ", 0, 1);
-			lcd.drawString(" Color |  Full  ", 0, 2);
-			lcd.drawString(" Class-|  demo  ", 0, 3);
-			lcd.drawString(" ifying|        ", 0, 4);
+			lcd.drawString(" Test  |  Full  ", 0, 2);
+			lcd.drawString("       |  demo  ", 0, 3);
+			lcd.drawString("       |        ", 0, 4);
 
 			buttonChoice = Button.waitForAnyPress(); // Record choice (left or right press)
 
@@ -122,117 +122,141 @@ public class Main {
 		if (buttonChoice == Button.ID_LEFT) { //US Localization has been selected
 			// clear the display
 			lcd.clear();
-//			USLocal.setType(LocalizationType.FALLING_EDGE);
-			CSLocal.setClassifyingDemo(true);
-			Thread displayThread = new Thread(display);
-			displayThread.start();
-			Thread csPollerThread = new Thread(csPoller);
-			csPollerThread.start();
-			
-		} else { 
-			// clear the display
-			lcd.clear();
-			USLocal.setType(LocalizationType.RISING_EDGE);
-			
-			// Start odometer and display threads
-			Thread odoThread = new Thread(odo);
-			odoThread.start();
-			Thread displayThread = new Thread(display);
-			displayThread.start();
-			Thread usPollerThread = new Thread(usPoller);
-			usPollerThread.start();
-			Thread lsPollerThread = new Thread(lsPoller);
-			lsPollerThread.start();
-			
-			try {
-				usPollerThread.join();
-				lsPollerThread.join();
-				usSensor.close();
-			} catch (InterruptedException e) {
-			
-				e.printStackTrace();
-			}
-			
-			// set position according to startOption
-			switch(startOption) {
-			case 1:
-				odo.setXYT(7*TILE_SIZE, 1*TILE_SIZE, 270);
-				break;
-			case 3:
-				odo.setXYT(1*TILE_SIZE, 7*TILE_SIZE, 90);
-				break;
-			case 2:
-				odo.setXYT(7*TILE_SIZE, 7*TILE_SIZE, 180);
-				break;
-			}
-			
-			
-			// start gyro corrector thread
-			nav.turnTo(odo.getXYT()[2], 0);
-			gyroSensor.reset();
-			nav.setGyro(gyro);
-			
-			
-			// start light corrector thread
-			Thread lsCorrectorThread = new Thread(lsCorrectorPoller);
-			lsCorrectorThread.start();
-			
-			nav.setCorrector(LSCorrector);
-			
-			// travels to the left corner
-			xyt = odo.getXYT();			
-			nav.travelTo(startCorner[0], startCorner[1]);
-			Sound.beep();
-			Thread navThread  = new Thread(nav);
-			navThread.start();
-			
-			try {
-				navThread.join();
-			} catch (InterruptedException e) {
-				
-				e.printStackTrace();
-			}
-			
-			Sound.beep();
-						
-			// find ring part
-			// Makes the robot go in a square spiral 
-			initSpiral(nav, startCorner, endCorner);
-			
-			Thread csPollerThread = new Thread(csPoller);
-			csPollerThread.start();
-			navThread = new Thread(nav);
-			navThread.start();
-		
-			try {
-				navThread.join();
-				CSLocal.running = false;
-				csSensor.close();
+		      // ask the user whether odometery correction should be run or not
+		      lcd.drawString("< Left | Right >", 0, 0);
+		      lcd.drawString("       |Localize", 0, 1);
+		      lcd.drawString("Local- | and    ", 0, 2);
+		      lcd.drawString(" ize   | Nav-   ", 0, 3);
+		      lcd.drawString("       | igate  ", 0, 4);
 
-			} catch (InterruptedException e) {
-				
-				e.printStackTrace();
+		    buttonChoice = Button.waitForAnyPress(); // Record choice (left or right press)
+//			USLocal.setType(LocalizationType.FALLING_EDGE);
+		    Thread odoThread = new Thread(odo);
+		    odoThread.start();
+			Thread displayThread = new Thread(display);
+			displayThread.start();
+
+			if (buttonChoice == Button.ID_LEFT) {
+				USLocal.setType(LocalizationType.FALLING_EDGE);
+				Thread usPollerThread = new Thread(usPoller);
+				usPollerThread.start();
+				Thread lsPollerThread = new Thread(lsPoller);
+				lsPollerThread.start();
+			}
+			else if (buttonChoice == Button.ID_RIGHT) {
+				USLocal.setType(LocalizationType.RISING_EDGE);
+				Thread usPollerThread = new Thread(usPoller);
+				usPollerThread.start();
+				Thread lsPollerThread = new Thread(lsPoller);
+				lsPollerThread.start();
+				//Navigate using wifi class and only along x, y lines
 			}
 			
-			// Ring found
-			// navigates to the end corner
-			nav.setRunning(true);
-			xyt =  odo.getXYT();
-			if (xyt[2] >= 46 && xyt[2] <= 135) {
-				nav.syncTravelTo(((int)xyt[0]/TILE_SIZE+0.5), xyt[1]/TILE_SIZE );	
-			} else if (xyt[2] >= 136 && xyt[2] <= 225) {
-				nav.syncTravelTo(xyt[0]/TILE_SIZE, ((int)xyt[1]/TILE_SIZE-0.5));	
-			} else if (xyt[2] >= 226 && xyt[2] <= 315) {
-				nav.syncTravelTo(((int)xyt[0]/TILE_SIZE-0.5), xyt[1]/TILE_SIZE );	
-			} else {
-				nav.syncTravelTo(xyt[0]/TILE_SIZE, ((int)xyt[1]/TILE_SIZE+0.5));
-			}
-			
-			nav.syncTravelTo(endCorner[0]+0.5, odo.getXYT()[1]/TILE_SIZE);	
-			nav.syncTravelTo(endCorner[0]+0.5, endCorner[1]);	
-			nav.syncTravelTo(endCorner[0],  endCorner[1]);
-			Sound.beep();
-		}
+		} else { //Perform full demo
+//			
+//			// clear the display
+//			lcd.clear();
+//			USLocal.setType(LocalizationType.RISING_EDGE);
+//			
+//			// Start odometer and display threads
+//			Thread odoThread = new Thread(odo);
+//			odoThread.start();
+//			Thread displayThread = new Thread(display);
+//			displayThread.start();
+//			Thread usPollerThread = new Thread(usPoller);
+//			usPollerThread.start();
+//			Thread lsPollerThread = new Thread(lsPoller);
+//			lsPollerThread.start();
+//			
+//			try {
+//				usPollerThread.join();
+//				lsPollerThread.join();
+//				usSensor.close();
+//			} catch (InterruptedException e) {
+//			
+//				e.printStackTrace();
+//			}
+//			
+//			// set position according to startOption
+//			switch(startOption) {
+//			case 1:
+//				odo.setXYT(7*TILE_SIZE, 1*TILE_SIZE, 270);
+//				break;
+//			case 3:
+//				odo.setXYT(1*TILE_SIZE, 7*TILE_SIZE, 90);
+//				break;
+//			case 2:
+//				odo.setXYT(7*TILE_SIZE, 7*TILE_SIZE, 180);
+//				break;
+//			}
+//			
+//			
+//			// start gyro corrector thread
+//			nav.turnTo(odo.getXYT()[2], 0);
+//			gyroSensor.reset();
+//			nav.setGyro(gyro);
+//			
+//			
+//			// start light corrector thread
+//			Thread lsCorrectorThread = new Thread(lsCorrectorPoller);
+//			lsCorrectorThread.start();
+//			
+//			nav.setCorrector(LSCorrector);
+//			
+//			// travels to the left corner
+//			xyt = odo.getXYT();			
+//			nav.travelTo(startCorner[0], startCorner[1]);
+//			Sound.beep();
+//			Thread navThread  = new Thread(nav);
+//			navThread.start();
+//			
+//			try {
+//				navThread.join();
+//			} catch (InterruptedException e) {
+//				
+//				e.printStackTrace();
+//			}
+//			
+//			Sound.beep();
+//						
+//			// find ring part
+//			// Makes the robot go in a square spiral 
+//			//initSpiral(nav, startCorner, endCorner);
+//			
+//			Thread csPollerThread = new Thread(csPoller);
+//			csPollerThread.start();
+//			navThread = new Thread(nav);
+//			navThread.start();
+//		
+//			try {
+//				navThread.join();
+//				CSLocal.running = false;
+//				csSensor.close();
+//
+//			} catch (InterruptedException e) {
+//				
+//				e.printStackTrace();
+//			}
+//			
+//			// Ring found
+//			// navigates to the end corner
+//			nav.setRunning(true);
+//			xyt =  odo.getXYT();
+//			if (xyt[2] >= 46 && xyt[2] <= 135) {
+//				nav.syncTravelTo(((int)xyt[0]/TILE_SIZE+0.5), xyt[1]/TILE_SIZE );	
+//			} else if (xyt[2] >= 136 && xyt[2] <= 225) {
+//				nav.syncTravelTo(xyt[0]/TILE_SIZE, ((int)xyt[1]/TILE_SIZE-0.5));	
+//			} else if (xyt[2] >= 226 && xyt[2] <= 315) {
+//				nav.syncTravelTo(((int)xyt[0]/TILE_SIZE-0.5), xyt[1]/TILE_SIZE );	
+//			} else {
+//				nav.syncTravelTo(xyt[0]/TILE_SIZE, ((int)xyt[1]/TILE_SIZE+0.5));
+//			}
+//			
+//			nav.syncTravelTo(endCorner[0]+0.5, odo.getXYT()[1]/TILE_SIZE);	
+//			nav.syncTravelTo(endCorner[0]+0.5, endCorner[1]);	
+//			nav.syncTravelTo(endCorner[0],  endCorner[1]);
+//			Sound.beep();
+//		}
 	}
 	
 	/**
@@ -241,24 +265,25 @@ public class Main {
 	 * @param navigation, startCorner, endCorner
 	 */
 	
-	public static void initSpiral(Navigation nav, double[] Ll, double[] Rr) {
-		double x, X, y, Y;
-		
-		x = Ll[0] - 0.5;
-		X = Rr[0] + 0.5;
-		y = Ll[1] + 0.5;
-		Y = Rr[1] + 0.5;
-		
-		nav.travelTo(x, y);
-		while(X>x && Y>y) {
-			nav.travelTo(x, Y);
-			x++;
-			nav.travelTo(X, Y);
-			Y--;
-			nav.travelTo(X, y);
-			X--;
-			nav.travelTo(x, y);
-			y++;	
-		}
-	}
+//	public static void initSpiral(Navigation nav, double[] Ll, double[] Rr) {
+//		double x, X, y, Y;
+//		
+//		x = Ll[0] - 0.5;
+//		X = Rr[0] + 0.5;
+//		y = Ll[1] + 0.5;
+//		Y = Rr[1] + 0.5;
+//		
+//		nav.travelTo(x, y);
+//		while(X>x && Y>y) {
+//			nav.travelTo(x, Y);
+//			x++;
+//			nav.travelTo(X, Y);
+//			Y--;
+//			nav.travelTo(X, y);
+//			X--;
+//			nav.travelTo(x, y);
+//			y++;	
+//		}
+//	}
+}
 }
