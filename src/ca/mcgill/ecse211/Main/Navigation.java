@@ -23,8 +23,6 @@ public class Navigation extends Thread{
 	private final double TILE_SIZE;
 
 	private Odometer odometer;
-	private AngleSampler gyro;
-	private LightCorrector corrector;
 
 	private double x, y, theta;
 
@@ -37,18 +35,10 @@ public class Navigation extends Thread{
 
 	private volatile boolean running;
 
+
 	public Navigation(Odometer odo, EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor, 
 			final double WHEEL_RAD, final double WHEEL_BASE, double tileSize) {
-
-		this(odo, null, null, leftMotor, rightMotor, 
-				WHEEL_RAD,WHEEL_BASE, tileSize);
-	}
-
-	public Navigation(Odometer odo, AngleSampler gyro, LightCorrector corrector, EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor, 
-			final double WHEEL_RAD, final double WHEEL_BASE, double tileSize) {
 		this.odometer = odo;
-		this.gyro = gyro;
-		this.corrector = corrector;
 		this.leftMotor = leftMotor;
 		this.rightMotor = rightMotor;
 		this.WHEEL_RAD = WHEEL_RAD;
@@ -118,12 +108,7 @@ public class Navigation extends Thread{
 
 		// turn to the correct direction
 		this._turnTo(theta, deltaTheta);
-		// correct angle with gyro
-		if (this.gyro != null) {
-			float theta = this.gyro.getTheta();
-			this.odometer.setTheta(theta);
-			this._turnTo(theta, deltaTheta);			
-		}
+
 		// move until destination is reached
 		// while loop is used in case of collision override
 		leftMotor.setSpeed(FORWARD_SPEED);
@@ -132,6 +117,8 @@ public class Navigation extends Thread{
 		leftMotor.forward();
 		rightMotor.forward();
 
+		
+		// @todo might consider using rotate function for fix amount of distance using the .rotate instead
 		while(true) {
 			double newTheta, newX, newY;
 
@@ -140,6 +127,7 @@ public class Navigation extends Thread{
 			newTheta = newXyt[2];
 			newX = newXyt[0];
 			newY = newXyt[1];	
+			leftMotor.rotate(1);
 
 			//If the difference between the current x/y and the x/y we started from is similar to the deltaX/deltaY, 
 			//Stop the motors because the point has been reached
@@ -262,13 +250,95 @@ public class Navigation extends Thread{
 	public void clearCoordList() {
 		this._coordsList.clear();
 	}
+	
 
-	public void setGyro(AngleSampler gyro) {
-		this.gyro = gyro;
-	}
+	/**
+	 * @param startIsland
+	 * @param endIsland
+	 * @param tunnel
+	 * @param tree
+	 * @return
+	 */
+	public static float[][] pathing(float[][] startIsland, float[][] endIsland, float tunnel[][], float[] tree) {
+		ArrayList<Object> paths = new ArrayList<Object>();
+		boolean tunnelPointingX = true;
+		float[] tunnelVector = new float []{tunnel[1][0] -tunnel[1][0],tunnel[0][0] -tunnel[0][1]};
+		if ((tunnelVector[0] > 0 && tunnelVector[1] > 0 ) || (tunnelVector[0] < 0 && tunnelVector[1] < 0)) {
+			tunnelPointingX = false;
+		}
 
-	public void setCorrector(LightCorrector corrector) {
-		this.corrector = corrector;
+		if (tunnelPointingX) {
+			paths.add(new float[]{0, (tunnel[0][1] + tunnel[1][1])/2});
+			// if the position of the tree is less far than the one of the tunnel (tunnel overlap with terrain)
+			// we will get around it instead
+			if (Math.abs(tree[0] - tunnel[0][0]) < Math.abs(tunnel[1][0]-tunnel[0][0])) {
+				// go one step farther than the tunnel
+				float tunnelXpp = tunnel[1][0]+1;
+				if (tunnel[1][0]-tunnel[0][0] < 0) {
+					tunnelXpp = tunnel[1][0]-1;
+				} 
+				
+				paths.add(new float[]{tunnelXpp, (tunnel[0][1] + tunnel[1][1])/2});
+
+				
+				if (tree[1] > (tunnel[0][1] + tunnel[1][1])/2) {
+					paths.add(new float[]{tunnelXpp, tunnel[1][1]+1});
+					paths.add(new float[]{tree[0], tunnel[1][1]+1});
+				} else {
+					paths.add(new float[]{tunnelXpp, tunnel[0][1]-1});
+					paths.add(new float[]{tree[0], tunnel[0][1]-1});
+				}
+				
+			} else {
+				paths.add(new float[]{tree[0], (tunnel[0][1] + tunnel[1][1])/2});
+			}
+			// go to before the y coordinate
+			if (tree[1] > (tunnel[1][0] + tunnel[1][1])/2) {
+				paths.add(new float[]{tree[0], tree[1]-1});
+			} else {
+				paths.add(new float[]{tree[0], tree[1]+1});
+			}
+			
+			
+		} else {
+			paths.add(new float[]{(tunnel[0][0] + tunnel[1][0])/2, 0});
+			if (Math.abs(tree[1] - tunnel[0][1]) < Math.abs(tunnel[1][1]-tunnel[0][1])) {
+				
+				float tunnelYpp = tunnel[1][1]-tunnel[0][1] + 1;
+				
+				if (tunnel[1][1]-tunnel[0][1] < 0) {
+					tunnelYpp = tunnel[1][1]-tunnel[0][1] - 1;
+				} 
+				
+				paths.add(new float[]{(tunnel[0][0] + tunnel[1][0])/2, tunnelYpp});
+				
+				if (tree[0] > (tunnel[0][0] + tunnel[1][0])/2) {
+					paths.add(new float[]{tunnel[1][0]+1, tunnelYpp});
+					paths.add(new float[]{tunnel[1][0]+1, tree[1]});
+				} else {
+					paths.add(new float[]{tunnel[0][0]-1, tunnelYpp});
+					paths.add(new float[]{tunnel[0][0]-1, tree[1]});
+				}
+				
+			} else {
+				paths.add(new float[]{(tunnel[0][0] + tunnel[1][0])/2, tree[1]});
+			}
+
+			
+			// go to before the x coordinate
+			if (tree[0] > (tunnel[0][0] + tunnel[1][0])/2) {
+				paths.add(new float[]{tree[0]-1, tree[1]});
+			} else {
+				paths.add(new float[]{tree[0]+1, tree[1]});
+			}
+
+		}
+		float[][] pathsArr = new float[paths.size()][];
+		int i = 0;
+		for (Object o: paths) {
+			pathsArr[i++] = (float[]) o;
+		}
+		return pathsArr;
 	}
 
 	/**
