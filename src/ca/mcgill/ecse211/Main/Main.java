@@ -24,6 +24,12 @@ import lejos.hardware.sensor.EV3UltrasonicSensor;
 import lejos.hardware.sensor.UARTSensor;
 import lejos.robotics.SampleProvider;
 
+/**
+ * The starting point of the robot's program. All motors, sensors and other constants required are defined here.
+ * Upon launch of the program the user will be prompted and based on the user's action a set of instructions will
+ * be carried out by the robot. 
+ */
+
 public class Main {
 
 	private static final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));

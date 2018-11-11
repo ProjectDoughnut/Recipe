@@ -2,6 +2,12 @@ package ca.mcgill.ecse211.Light;
 
 import lejos.robotics.SampleProvider;
 
+/**
+ * 
+ * LightPoller runs in it's own thread collecting light sensor data and passing it to the correspoding controller
+ *
+ */
+
 public class LightPoller extends Thread {
 	private SampleProvider ls;
 	private LightController cont;
