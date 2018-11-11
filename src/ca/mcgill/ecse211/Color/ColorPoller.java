@@ -2,6 +2,12 @@ package ca.mcgill.ecse211.Color;
 
 import lejos.robotics.SampleProvider;
 
+/**
+ * 
+ * ColorPoller runs in it's own thread collecting colour sensor data and passing it to the correspoding controller
+ *
+ */
+
 public class ColorPoller extends Thread {
 	private SampleProvider cs;
 	private ColorController cont;

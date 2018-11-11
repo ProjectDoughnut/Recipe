@@ -6,6 +6,12 @@ import ca.mcgill.ecse211.Odometer.Odometer;
 
 import lejos.hardware.Sound;
 
+/**
+ * 
+ * Localizes the robot to the given origins by the user using the light sensor. Rotates 360° sweeping all
+ * black lines on the platform and using trigonometry makes adjustments to the x,y and theta accordingly
+ *
+ */
 
 public class LightLocalizer implements LightController{
 

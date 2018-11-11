@@ -1,5 +1,12 @@
 package ca.mcgill.ecse211.Ultrasonic;
 
+
+/**
+ * 
+ * Interface that is used by USLocalizer to process ultrasonic sensor data (in cm)
+ *
+ */
+
 public interface UltrasonicController {
 	/**
 	 * Check if controller is running.

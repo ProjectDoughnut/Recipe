@@ -6,10 +6,18 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import lejos.robotics.SampleProvider;
 
+/**
+ * 
+ * Class that polls gyro sensor readings in its own thread, contains getters and setters for theta
+ * which is the heading of the robot
+ *
+ */
+
 public class AngleSampler {
 
 	public boolean running;
-	private float theta;
+	private float offset;
+
 
 	public static Lock lock = new ReentrantLock(true); // Fair lock for
 	// concurrent writing
@@ -28,6 +36,7 @@ public class AngleSampler {
 		this.running = true;
 		this.gyro = gyro;
 		this.gyroData = new float[gyro.sampleSize()];
+		this.offset = 0;
 	}
 
 	/**
@@ -36,26 +45,23 @@ public class AngleSampler {
 	 */
 	public float getTheta() {
 		gyro.fetchSample(gyroData, 0); // acquire data
-		this.theta = -(gyroData[0]); 
 
-		return theta;
+		return (-(gyroData[0])+offset)%360; 
+	}
+	
+	public void resetOffset() {
+		this.offset = 0;
 	}
 
-	public void setTheta(float theta) {
+	public float getOffset() {
+		return offset;
+	}
 
-		lock.lock();
-		isReseting = true;
-		try {
-			this.theta = theta;
-			isReseting = false; // Done reseting
-			doneReseting.signalAll(); // Let the other threads know that you are
-		} finally {
-			lock.unlock();
-		}
+	public void setOffset(float offset) {
+		this.offset = offset;
 	}
 
 	public boolean isRunning() {
-		
 		return this.running;
 	}
 

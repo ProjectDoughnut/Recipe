@@ -23,7 +23,6 @@ import lejos.hardware.sensor.EV3GyroSensor;
 import lejos.hardware.sensor.EV3UltrasonicSensor;
 import lejos.hardware.sensor.UARTSensor;
 import lejos.robotics.SampleProvider;
-
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.Map;
@@ -32,6 +31,7 @@ import org.json.simple.parser.ParseException;
 
 import ca.mcgill.ecse211.WiFiClient.WifiConnection;
 import lejos.hardware.Button;
+
 
 public class Main {
 
@@ -48,16 +48,16 @@ public class Main {
 	public static SampleProvider usValue = usSensor.getMode("Distance");
 
 	//Setting up gyro sensor 
-	//public static EV3GyroSensor gyroSensor = new EV3GyroSensor(gyroPort);
-	//public static SampleProvider gyroValue = gyroSensor.getMode("Angle");
+	public static EV3GyroSensor gyroSensor = new EV3GyroSensor(gyroPort);
+	public static SampleProvider gyroValue = gyroSensor.getMode("Angle");
 	
 	//Setting up light sensor
 
 	public static UARTSensor lsSensor = new EV3ColorSensor(lsPort);
 	public static SampleProvider lsValue = lsSensor.getMode("Red");
 	
-	//public static EV3ColorSensor csSensor = new EV3ColorSensor(csPort);
-	//public static SampleProvider csValue = csSensor.getRGBMode();
+	public static EV3ColorSensor csSensor = new EV3ColorSensor(csPort);
+	public static SampleProvider csValue = csSensor.getRGBMode();
 
 	private static final TextLCD lcd = LocalEV3.get().getTextLCD();
 
@@ -125,8 +125,12 @@ public class Main {
 		LightPoller lsCorrectorPoller = new LightPoller(lsValue, LSCorrector);
 		
 		ColorClassifier CSLocal = new ColorClassifier(odo, nav, targetRing, false);
+
 		//ColorPoller csPoller = new ColorPoller(csValue, CSLocal);
 		double[] xyt;
+
+		ColorPoller csPoller = new ColorPoller(csValue, CSLocal);
+
 
 		do {
 			// clear the display
@@ -195,7 +199,37 @@ public class Main {
 				
 			}
 			
-		} else { //Perform full demo
+		} else { 
+		    Thread odoThread = new Thread(odo);
+		    odoThread.start();
+			Thread displayThread = new Thread(display);
+			displayThread.start();
+			nav.syncTravelTo(0, 1);
+//			USLocal.setType(LocalizationType.RISING_EDGE);
+//			Thread usPollerThread = new Thread(usPoller);
+//			usPollerThread.start();
+//			Thread lsPollerThread = new Thread(lsPoller);
+//			lsPollerThread.start();
+//			try {
+//				usPollerThread.join();
+//				lsPollerThread.join();
+//			} catch (InterruptedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+			
+			
+			// initiate *other stuffs*
+
+
+			
+			
+			//Perform full demo
+			
+			
+			
+			
+			
 //			
 //			// clear the display
 //			lcd.clear();

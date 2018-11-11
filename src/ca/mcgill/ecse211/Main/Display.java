@@ -6,6 +6,11 @@ import ca.mcgill.ecse211.Odometer.Odometer;
 import ca.mcgill.ecse211.Odometer.OdometerExceptions;
 import lejos.hardware.lcd.TextLCD;
 
+/**
+ * 
+ * Organizes and shows the readings/instructions on the brick's display to the user
+ *
+ */
 
 public class Display extends Thread implements Runnable {
 

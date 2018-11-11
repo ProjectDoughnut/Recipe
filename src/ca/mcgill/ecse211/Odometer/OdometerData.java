@@ -6,6 +6,14 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import lejos.hardware.Sound;
 
+
+/**
+ * 
+ * Class is used to manipulate Odometer data taken from the tachometers. Updates x, y and theta according to 
+ * tachometer data measurements. Contains setters and getters for Odometer and Navigation classes to use
+ *
+ */
+
 public class OdometerData {
 
 	  // Position parameters

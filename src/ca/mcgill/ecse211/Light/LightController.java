@@ -1,5 +1,11 @@
 package ca.mcgill.ecse211.Light;
 
+/**
+ * 
+ * Interface that is used by LightPoller to process light sensor data
+ *
+ */
+
 public interface LightController {
 	
 	/**
