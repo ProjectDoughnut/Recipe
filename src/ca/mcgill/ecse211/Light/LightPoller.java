@@ -7,6 +7,8 @@ public class LightPoller extends Thread {
 	private LightController cont;
 	private float[] lsData;
 	public int distance;
+	
+	public int SLEEP_TIME = 20;
 
 	public volatile boolean running;
 
@@ -17,6 +19,10 @@ public class LightPoller extends Thread {
 		this.running = true;
 	}
 
+	public LightPoller(SampleProvider ls, LightController cont, int SLEEP_TIME) {
+		this(ls, cont);
+		this.SLEEP_TIME = SLEEP_TIME;
+	}
 	/**
 	 * Poller which pass the sensor information to its corresponding controller.
 	 * Has a lock mechanism to sleep the thread.
@@ -42,7 +48,7 @@ public class LightPoller extends Thread {
 			distance = (int)(lsData[0] * 100.0); // extract from buffer, cast to int
 			cont.process(distance); // now take action depending on value
 			try {
-				Thread.sleep(20);
+				Thread.sleep(this.SLEEP_TIME);
 			} catch (Exception e) {
 			} // Poor man's timed sampling
 		}

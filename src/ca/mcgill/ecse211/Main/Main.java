@@ -26,7 +26,7 @@ import lejos.robotics.SampleProvider;
 
 public class Main {
 
-	private static final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
+	private static final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));
 	private static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
 
 	private static final Port usPort = LocalEV3.get().getPort("S4");
@@ -102,7 +102,6 @@ public class Main {
 		
 		ColorClassifier CSLocal = new ColorClassifier(odo, nav, targetRing, false);
 		ColorPoller csPoller = new ColorPoller(csValue, CSLocal);
-		double[] xyt;
 
 		do {
 			// clear the display
@@ -152,7 +151,37 @@ public class Main {
 				//Navigate using wifi class and only along x, y lines
 			}
 			
-		} else { //Perform full demo
+		} else { 
+		    Thread odoThread = new Thread(odo);
+		    odoThread.start();
+			Thread displayThread = new Thread(display);
+			displayThread.start();
+			nav.syncTravelTo(0, 1);
+//			USLocal.setType(LocalizationType.RISING_EDGE);
+//			Thread usPollerThread = new Thread(usPoller);
+//			usPollerThread.start();
+//			Thread lsPollerThread = new Thread(lsPoller);
+//			lsPollerThread.start();
+//			try {
+//				usPollerThread.join();
+//				lsPollerThread.join();
+//			} catch (InterruptedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+			
+			
+			// initiate *other stuffs*
+
+
+			
+			
+			//Perform full demo
+			
+			
+			
+			
+			
 //			
 //			// clear the display
 //			lcd.clear();

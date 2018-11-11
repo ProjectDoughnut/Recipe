@@ -28,11 +28,8 @@ public class LightCorrector implements LightController {
 		try {
 			odometer = Odometer.getOdometer();
 		} catch (OdometerExceptions e) {
-
 			e.printStackTrace();
 		}
-
-
 	}
 
 	@Override
@@ -81,22 +78,12 @@ public class LightCorrector implements LightController {
 
 			if (Math.abs(errorX) <= ERROR_THRESHOLD && errorX <= errorY) {
 				corrX = -errorX;
-
 				odometer.update(corrX, 0, 0);
 
 			} else if (Math.abs(errorY) <= ERROR_THRESHOLD) {
 				// probably y line
-
 				corrY = -errorY;
 				odometer.update(0, corrY, 0);
-
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-
-					e.printStackTrace();
-				}
-
 			}
 
 		}

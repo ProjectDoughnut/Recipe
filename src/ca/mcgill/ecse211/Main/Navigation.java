@@ -46,6 +46,7 @@ public class Navigation extends Thread{
 		this.TILE_SIZE = tileSize;
 		this.isNavigating = false;
 		this._coordsList = new ArrayList<double[]>();
+		this.running = true;
 
 	}
 
@@ -98,7 +99,7 @@ public class Navigation extends Thread{
 		double deltaY = navY - y;
 
 
-		double magnitudeSqr = Math.pow(deltaX, 2) + Math.pow(deltaY, 2); 
+		double magnitudeSqr = Math.pow(deltaX, 2) + Math.pow(deltaY, 2);
 		//need to convert theta from degrees to radians
 		double deltaTheta = Math.atan2(deltaX, deltaY) / Math.PI * 180;
 
@@ -108,7 +109,7 @@ public class Navigation extends Thread{
 
 		// turn to the correct direction
 		this._turnTo(theta, deltaTheta);
-
+		Sound.beep();
 		// move until destination is reached
 		// while loop is used in case of collision override
 		leftMotor.setSpeed(FORWARD_SPEED);
@@ -116,10 +117,13 @@ public class Navigation extends Thread{
 		this.isNavigating = true;
 		leftMotor.forward();
 		rightMotor.forward();
+		TextLCD lcd = LocalEV3.get().getTextLCD();
 
-		
+		Sound.twoBeeps();
 		// @todo might consider using rotate function for fix amount of distance using the .rotate instead
 		while(true) {
+			
+			
 			double newTheta, newX, newY;
 
 			double newXyt[] = odometer.getXYT();
@@ -127,7 +131,6 @@ public class Navigation extends Thread{
 			newTheta = newXyt[2];
 			newX = newXyt[0];
 			newY = newXyt[1];	
-			leftMotor.rotate(1);
 
 			//If the difference between the current x/y and the x/y we started from is similar to the deltaX/deltaY, 
 			//Stop the motors because the point has been reached
@@ -170,7 +173,7 @@ public class Navigation extends Thread{
 		leftMotor.stop(true);
 		rightMotor.stop(false);
 		this.isNavigating = false;
-		
+		Sound.beepSequence();
 		return true;
 	}
 
