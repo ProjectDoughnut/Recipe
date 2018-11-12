@@ -149,14 +149,29 @@ public class Main {
 				Thread lsPollerThread = new Thread(lsPoller);
 				lsPollerThread.start();
 				//Navigate using wifi class and only along x, y lines
+				try {
+					usPollerThread.join();
+					lsPollerThread.join();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				// add coordinates of tunnel and tree here
+				float[][] paths = Navigation.pathing(new float[][] {{1,2},{2,3}}, new float[] {4,5});
+				for (float[] path: paths) {
+					nav.travelTo(path[0], path[1]);
+				}
+				
+				Thread navThread = new Thread(nav);
+				navThread.start();
 			}
 			
 		} else { 
-		    Thread odoThread = new Thread(odo);
-		    odoThread.start();
-			Thread displayThread = new Thread(display);
-			displayThread.start();
-			nav.syncTravelTo(0, 1);
+
+
+			
+			
 //			USLocal.setType(LocalizationType.RISING_EDGE);
 //			Thread usPollerThread = new Thread(usPoller);
 //			usPollerThread.start();
@@ -177,7 +192,6 @@ public class Main {
 			
 			
 			//Perform full demo
-			
 			
 			
 			

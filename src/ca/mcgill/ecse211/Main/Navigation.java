@@ -15,7 +15,7 @@ public class Navigation extends Thread{
 
 	private EV3LargeRegulatedMotor leftMotor;
 	private EV3LargeRegulatedMotor rightMotor;
-	
+
 	private static final int FORWARD_SPEED = 200;
 	private static final int ROTATE_SPEED = 130;
 	private final double WHEEL_RAD;
@@ -122,8 +122,8 @@ public class Navigation extends Thread{
 		Sound.twoBeeps();
 		// @todo might consider using rotate function for fix amount of distance using the .rotate instead
 		while(true) {
-			
-			
+
+
 			double newTheta, newX, newY;
 
 			double newXyt[] = odometer.getXYT();
@@ -164,7 +164,7 @@ public class Navigation extends Thread{
 			try {
 				Thread.sleep(25);
 			} catch (InterruptedException e) {
-				
+
 				e.printStackTrace();
 			}
 
@@ -177,8 +177,8 @@ public class Navigation extends Thread{
 		return true;
 	}
 
-	
-	
+
+
 	/**
 	 * Call synchonized _travelTo function when running ouside a seperate thread instance.
 	 * 
@@ -189,7 +189,7 @@ public class Navigation extends Thread{
 		_travelTo(navX*TILE_SIZE, navY*TILE_SIZE);
 	}
 
-	
+
 	/**
 	 * 
 	 * This method causes the robot to turn (on point) to the absolute (minima) heading theta. This method
@@ -198,7 +198,7 @@ public class Navigation extends Thread{
 	 * @param currTheta current theta
 	 * @param destTheta to turn robot by
 	 */
-	
+
 	void _turnTo(double currTheta, double destTheta) {
 		// get theta difference
 		double deltaTheta = destTheta - currTheta;
@@ -213,8 +213,8 @@ public class Navigation extends Thread{
 		this.isNavigating = false;
 	}
 
-	
-	
+
+
 	/**
 	 * Synchronized public turn method
 	 * 
@@ -224,8 +224,8 @@ public class Navigation extends Thread{
 	public void turnTo(double currTheta, double destTheta) {
 		_turnTo(currTheta, destTheta);
 	}
-	
-	
+
+
 	/**
 	 * Normalized the angle so that the turn is always < 180 degrees
 	 * 
@@ -253,7 +253,7 @@ public class Navigation extends Thread{
 	public void clearCoordList() {
 		this._coordsList.clear();
 	}
-	
+
 
 	/**
 	 * @param startIsland
@@ -262,10 +262,11 @@ public class Navigation extends Thread{
 	 * @param tree
 	 * @return
 	 */
-	public static float[][] pathing(float[][] startIsland, float[][] endIsland, float tunnel[][], float[] tree) {
+	public static float[][] pathing(float tunnel[][], float[] tree) {
 		ArrayList<Object> paths = new ArrayList<Object>();
 		boolean tunnelPointingX = true;
-		float[] tunnelVector = new float []{tunnel[1][0] -tunnel[1][0],tunnel[0][0] -tunnel[0][1]};
+		float[] tunnelVector = new float []{tunnel[0][0] -tunnel[1][0],tunnel[0][1] -tunnel[1][1]};
+
 		if ((tunnelVector[0] > 0 && tunnelVector[1] > 0 ) || (tunnelVector[0] < 0 && tunnelVector[1] < 0)) {
 			tunnelPointingX = false;
 		}
@@ -280,10 +281,10 @@ public class Navigation extends Thread{
 				if (tunnel[1][0]-tunnel[0][0] < 0) {
 					tunnelXpp = tunnel[1][0]-1;
 				} 
-				
+
 				paths.add(new float[]{tunnelXpp, (tunnel[0][1] + tunnel[1][1])/2});
 
-				
+
 				if (tree[1] > (tunnel[0][1] + tunnel[1][1])/2) {
 					paths.add(new float[]{tunnelXpp, tunnel[1][1]+1});
 					paths.add(new float[]{tree[0], tunnel[1][1]+1});
@@ -291,7 +292,7 @@ public class Navigation extends Thread{
 					paths.add(new float[]{tunnelXpp, tunnel[0][1]-1});
 					paths.add(new float[]{tree[0], tunnel[0][1]-1});
 				}
-				
+
 			} else {
 				paths.add(new float[]{tree[0], (tunnel[0][1] + tunnel[1][1])/2});
 			}
@@ -301,20 +302,20 @@ public class Navigation extends Thread{
 			} else {
 				paths.add(new float[]{tree[0], tree[1]+1});
 			}
-			
-			
+
+
 		} else {
 			paths.add(new float[]{(tunnel[0][0] + tunnel[1][0])/2, 0});
 			if (Math.abs(tree[1] - tunnel[0][1]) < Math.abs(tunnel[1][1]-tunnel[0][1])) {
-				
+
 				float tunnelYpp = tunnel[1][1]-tunnel[0][1] + 1;
-				
+
 				if (tunnel[1][1]-tunnel[0][1] < 0) {
 					tunnelYpp = tunnel[1][1]-tunnel[0][1] - 1;
 				} 
-				
+
 				paths.add(new float[]{(tunnel[0][0] + tunnel[1][0])/2, tunnelYpp});
-				
+
 				if (tree[0] > (tunnel[0][0] + tunnel[1][0])/2) {
 					paths.add(new float[]{tunnel[1][0]+1, tunnelYpp});
 					paths.add(new float[]{tunnel[1][0]+1, tree[1]});
@@ -322,12 +323,12 @@ public class Navigation extends Thread{
 					paths.add(new float[]{tunnel[0][0]-1, tunnelYpp});
 					paths.add(new float[]{tunnel[0][0]-1, tree[1]});
 				}
-				
+
 			} else {
 				paths.add(new float[]{(tunnel[0][0] + tunnel[1][0])/2, tree[1]});
 			}
 
-			
+
 			// go to before the x coordinate
 			if (tree[0] > (tunnel[0][0] + tunnel[1][0])/2) {
 				paths.add(new float[]{tree[0]-1, tree[1]});
