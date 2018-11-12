@@ -11,6 +11,14 @@ import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.lcd.TextLCD;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
+
+/**
+ * 
+ * Navigation class drives the robot to given coordinates [x,y]. Contains methods for moving in a straight line
+ * and change heading 
+ *
+ */
+
 public class Navigation extends Thread{
 
 	private EV3LargeRegulatedMotor leftMotor;

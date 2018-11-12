@@ -5,6 +5,14 @@ import ca.mcgill.ecse211.Odometer.Odometer;
 import ca.mcgill.ecse211.Odometer.OdometerExceptions;
 
 
+
+/**
+ * 
+ * Class that corrects odometer readings when it crosses a black line. Filters light sensor data instead of 
+ * directly reading the intensity
+ *
+ */
+
 public class LightCorrector implements LightController {
 
 	private Odometer odometer;

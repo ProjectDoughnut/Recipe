@@ -6,6 +6,14 @@ import ca.mcgill.ecse211.Main.Navigation;
 import ca.mcgill.ecse211.Odometer.Odometer;
 import lejos.hardware.Sound;
 
+/**
+ * 
+ * ColorClassifier compares the data received by the color sensor to the RGB values 
+ * of the different coloured rings using Gaussian distribution and beeps accordingly, e.g. one beep for for blue
+ * two beeps for green, etc
+ *
+ */
+
 public class ColorClassifier implements ColorController{
 
 	private Odometer odo;

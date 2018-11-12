@@ -6,6 +6,13 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import lejos.robotics.SampleProvider;
 
+/**
+ * 
+ * Class that polls gyro sensor readings in its own thread, contains getters and setters for theta
+ * which is the heading of the robot
+ *
+ */
+
 public class AngleSampler {
 
 	public boolean running;

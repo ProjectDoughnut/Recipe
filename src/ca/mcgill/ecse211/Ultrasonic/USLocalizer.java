@@ -7,6 +7,14 @@ import lejos.hardware.Sound;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
 
+/**
+ * 
+ * USLocalizer uses two types of localization (Falling or Rising Edge) depending on the users input in from
+ * the main class. The robot turns in place and detects the wall letting it know how much it needs to turn in
+ * order to localize to a 0 degree heading
+ *
+ */
+
 public class USLocalizer extends Thread implements UltrasonicController{
 
 	public enum LocalizationType{FALLING_EDGE, RISING_EDGE};

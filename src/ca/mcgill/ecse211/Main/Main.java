@@ -23,16 +23,25 @@ import lejos.hardware.sensor.EV3GyroSensor;
 import lejos.hardware.sensor.EV3UltrasonicSensor;
 import lejos.hardware.sensor.UARTSensor;
 import lejos.robotics.SampleProvider;
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.util.Map;
+
+import org.json.simple.parser.ParseException;
+
+import ca.mcgill.ecse211.WiFiClient.WifiConnection;
+import lejos.hardware.Button;
+
 
 public class Main {
 
 	private static final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));
 	private static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
 
-	private static final Port usPort = LocalEV3.get().getPort("S4");
-	private static final Port gyroPort = LocalEV3.get().getPort("S2");
+	private static final Port usPort = LocalEV3.get().getPort("S3");
+	private static final Port gyroPort = LocalEV3.get().getPort("S4");
 	private static final Port lsPort = LocalEV3.get().getPort("S1");
-	private static final Port csPort = LocalEV3.get().getPort("S3");
+	private static final Port csPort = LocalEV3.get().getPort("S2");
 
 	//Setting up ultrasonic sensor
 	public static UARTSensor usSensor = new EV3UltrasonicSensor(usPort);
@@ -53,15 +62,27 @@ public class Main {
 	private static final TextLCD lcd = LocalEV3.get().getTextLCD();
 
 	public static final double WHEEL_RAD = 2.2;
-	public static final double WHEEL_BASE = 10.45;
+	public static final double WHEEL_BASE = 12.70;
 	public static final double TILE_SIZE = 30.48;
 	
-	public static final int startOption = 0;
-	public static final double[] startCorner = {3.0, 2.0};
-	public static final double[] endCorner = {4.0, 4.0};
-	public static final RingColors targetRing = RingColors.BLUE;	
+	
+	private static boolean red = false;
+	private static boolean green = false;
+	private static int corner;
+	private static int[] cornerCoord;
+	private static float[][] island = new float[2][2];
+	private static float[][] home = new float[2][2];
+	private static float[][] tunnel = new float[2][2];
+	private static float[] tree = new float[2];
+	public static float[][] pathToTree;
+	private static RingColors targetRing;
+	private static final String SERVER_IP = "192.168.2.25";
+	private static final int TEAM_NUMBER = 2;
+	// Enable/disable printing of debug info from the WiFi class
+	private static final boolean ENABLE_DEBUG_WIFI_PRINT = false;
 
-	public static void main(String[] args) throws OdometerExceptions {
+
+	public static void main(String[] args) throws OdometerExceptions, UnknownHostException, IOException, ParseException {
 		// init thread to exit application
 		Thread exitThread = new Thread() {
 			public void run() {
@@ -70,8 +91,11 @@ public class Main {
 			}
 		};
 		exitThread.start();
-
-
+		
+	    
+		getWiFiParameters();
+		lcd.clear();
+	    
 		int buttonChoice;
 
 		//Setting up the odometer and display
@@ -93,7 +117,7 @@ public class Main {
 
 		
 		// define gyro corrector
-		AngleSampler gyro = new AngleSampler(gyroValue);
+		//AngleSampler gyro = new AngleSampler(gyroValue);
 		
 		
 		// define light corrector
@@ -101,7 +125,12 @@ public class Main {
 		LightPoller lsCorrectorPoller = new LightPoller(lsValue, LSCorrector);
 		
 		ColorClassifier CSLocal = new ColorClassifier(odo, nav, targetRing, false);
+
+		//ColorPoller csPoller = new ColorPoller(csValue, CSLocal);
+		double[] xyt;
+
 		ColorPoller csPoller = new ColorPoller(csValue, CSLocal);
+
 
 		do {
 			// clear the display
@@ -143,12 +172,31 @@ public class Main {
 				lsPollerThread.start();
 			}
 			else if (buttonChoice == Button.ID_RIGHT) {
-				USLocal.setType(LocalizationType.RISING_EDGE);
+				USLocal.setType(LocalizationType.FALLING_EDGE);
 				Thread usPollerThread = new Thread(usPoller);
 				usPollerThread.start();
 				Thread lsPollerThread = new Thread(lsPoller);
 				lsPollerThread.start();
 				//Navigate using wifi class and only along x, y lines
+
+				if (corner == 1) {
+					odo.setXYT(7*TILE_SIZE, 1*TILE_SIZE, 270);
+				}
+				if (corner == 2) {
+					odo.setXYT(7*TILE_SIZE, 7*TILE_SIZE, 90);
+				}
+				if (corner == 3) {
+					odo.setXYT(1*TILE_SIZE, 7*TILE_SIZE, 180);
+				}
+				Sound.beep();
+				//pathToTree = Navigation.pathing(cornerCoord, home, island, tunnel, tree);
+				
+				nav._turnTo(odo.getXYT()[2], 0);
+				nav._travelTo(2, 2);
+				Sound.beep();
+//				nav.moveThroughTunnel(tunnel, tree);
+//				nav.moveToTree(tunnel, tree);
+				
 				try {
 					usPollerThread.join();
 					lsPollerThread.join();
@@ -329,4 +377,51 @@ public class Main {
 //		}
 //	}
 }
+	
+	public static void getWiFiParameters() {
+		 // Initialize WifiConnection class
+	    WifiConnection conn = new WifiConnection(SERVER_IP, TEAM_NUMBER, ENABLE_DEBUG_WIFI_PRINT);
+
+	    // Connect to server and get the data, catching any errors that might occur
+	    try {
+	      /*
+	       * getData() will connect to the server and wait until the user/TA presses the "Start" button
+	       * in the GUI on their laptop with the data filled in. Once it's waiting, you can kill it by
+	       * pressing the upper left hand corner button (back/escape) on the EV3. getData() will throw
+	       * exceptions if it can't connect to the server (e.g. wrong IP address, server not running on
+	       * laptop, not connected to WiFi router, etc.). It will also throw an exception if it connects
+	       * but receives corrupted data or a message from the server saying something went wrong. For
+	       * example, if TEAM_NUMBER is set to 1 above but the server expects teams 17 and 5, this robot
+	       * will receive a message saying an invalid team number was specified and getData() will throw
+	       * an exception letting you know.
+	       */
+	      Map data = conn.getData();
+
+	      int greenTeam = ((Long) data.get("GreenTeam")).intValue();
+	      if (greenTeam == TEAM_NUMBER) {
+	    	  	green = true;
+	    	  	corner = ((Long) data.get("GreenCorner")).intValue();
+			float[] startHome = {((Long) data.get("Green_LL_x")).intValue(), ((Long) data.get("Green_LL_y")).intValue()};
+			float[] endHome = {((Long) data.get("Green_UR_x")).intValue(), ((Long) data.get("Green_UR_y")).intValue()};
+			home[0] = startHome;
+			home[1] = endHome;
+			float[] startIsland = {((Long) data.get("Island_LL_x")).intValue(), ((Long) data.get("Island_LL_y")).intValue()};
+			float[] endIsland = {((Long) data.get("Island_UR_x")).intValue(), ((Long) data.get("Island_UR_y")).intValue()};
+			island[0] = startIsland;
+			island[1] = endIsland;
+			float[] tunnel_LL = {((Long) data.get("TNG_LL_x")).intValue(), ((Long) data.get("TNG_LL_y")).intValue()};
+			float[] tunnel_UR = {((Long) data.get("TNG_UR_x")).intValue(), ((Long) data.get("TNG_UR_y")).intValue()};
+			tunnel[0] = tunnel_LL;
+			tunnel[1] = tunnel_UR;
+			tree[0] = ((Long) data.get("TG_x")).intValue(); 
+			tree[1] = ((Long) data.get("TG_y")).intValue();
+	    	  	
+	      }
+
+
+	    } catch (Exception e) {
+	      System.err.println("Error: " + e.getMessage());
+	    }
+	    
+	}
 }
