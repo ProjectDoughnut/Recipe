@@ -280,7 +280,7 @@ public class Navigation extends Thread{
 		}
 
 		if (tunnelPointingX) {
-			paths.add(new float[]{0, (tunnel[0][1] + tunnel[1][1])/2});
+			paths.add(new float[]{1, (tunnel[0][1] + tunnel[1][1])/2});
 			// if the position of the tree is less far than the one of the tunnel (tunnel overlap with terrain)
 			// we will get around it instead
 			if (Math.abs(tree[0] - tunnel[0][0]) < Math.abs(tunnel[1][0]-tunnel[0][0])) {
@@ -313,7 +313,7 @@ public class Navigation extends Thread{
 
 
 		} else {
-			paths.add(new float[]{(tunnel[0][0] + tunnel[1][0])/2, 0});
+			paths.add(new float[]{(tunnel[0][0] + tunnel[1][0])/2, 1});
 			if (Math.abs(tree[1] - tunnel[0][1]) < Math.abs(tunnel[1][1]-tunnel[0][1])) {
 
 				float tunnelYpp = tunnel[1][1]-tunnel[0][1] + 1;

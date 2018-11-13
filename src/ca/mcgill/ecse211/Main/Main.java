@@ -2,6 +2,7 @@ package ca.mcgill.ecse211.Main;
 
 import ca.mcgill.ecse211.Ultrasonic.*;
 
+
 import ca.mcgill.ecse211.Ultrasonic.USLocalizer.LocalizationType;
 import ca.mcgill.ecse211.Color.ColorClassifier;
 import ca.mcgill.ecse211.Color.ColorClassifier.RingColors;
@@ -39,25 +40,25 @@ public class Main {
 	private static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
 
 	private static final Port usPort = LocalEV3.get().getPort("S3");
-	private static final Port gyroPort = LocalEV3.get().getPort("S4");
-	private static final Port lsPort = LocalEV3.get().getPort("S1");
-	private static final Port csPort = LocalEV3.get().getPort("S2");
+	//private static final Port gyroPort = LocalEV3.get().getPort("S4");
+	private static final Port lsPort = LocalEV3.get().getPort("S2");
+	//private static final Port csPort = LocalEV3.get().getPort("S2");
 
 	//Setting up ultrasonic sensor
 	public static UARTSensor usSensor = new EV3UltrasonicSensor(usPort);
 	public static SampleProvider usValue = usSensor.getMode("Distance");
 
 	//Setting up gyro sensor 
-	public static EV3GyroSensor gyroSensor = new EV3GyroSensor(gyroPort);
-	public static SampleProvider gyroValue = gyroSensor.getMode("Angle");
+	//public static EV3GyroSensor gyroSensor = new EV3GyroSensor(gyroPort);
+	//public static SampleProvider gyroValue = gyroSensor.getMode("Angle");
 	
 	//Setting up light sensor
 
 	public static UARTSensor lsSensor = new EV3ColorSensor(lsPort);
 	public static SampleProvider lsValue = lsSensor.getMode("Red");
 	
-	public static EV3ColorSensor csSensor = new EV3ColorSensor(csPort);
-	public static SampleProvider csValue = csSensor.getRGBMode();
+	//public static EV3ColorSensor csSensor = new EV3ColorSensor(csPort);
+	//public static SampleProvider csValue = csSensor.getRGBMode();
 
 	private static final TextLCD lcd = LocalEV3.get().getTextLCD();
 
@@ -76,7 +77,7 @@ public class Main {
 	private static float[] tree = new float[2];
 	public static float[][] pathToTree;
 	private static RingColors targetRing;
-	private static final String SERVER_IP = "192.168.2.25";
+	private static final String SERVER_IP = "192.168.2.47";
 	private static final int TEAM_NUMBER = 2;
 	// Enable/disable printing of debug info from the WiFi class
 	private static final boolean ENABLE_DEBUG_WIFI_PRINT = false;
@@ -129,7 +130,7 @@ public class Main {
 		//ColorPoller csPoller = new ColorPoller(csValue, CSLocal);
 		double[] xyt;
 
-		ColorPoller csPoller = new ColorPoller(csValue, CSLocal);
+		//ColorPoller csPoller = new ColorPoller(csValue, CSLocal);
 
 
 		do {
@@ -179,24 +180,6 @@ public class Main {
 				lsPollerThread.start();
 				//Navigate using wifi class and only along x, y lines
 
-				if (corner == 1) {
-					odo.setXYT(7*TILE_SIZE, 1*TILE_SIZE, 270);
-				}
-				if (corner == 2) {
-					odo.setXYT(7*TILE_SIZE, 7*TILE_SIZE, 90);
-				}
-				if (corner == 3) {
-					odo.setXYT(1*TILE_SIZE, 7*TILE_SIZE, 180);
-				}
-				Sound.beep();
-				//pathToTree = Navigation.pathing(cornerCoord, home, island, tunnel, tree);
-				
-				nav._turnTo(odo.getXYT()[2], 0);
-				nav._travelTo(2, 2);
-				Sound.beep();
-//				nav.moveThroughTunnel(tunnel, tree);
-//				nav.moveToTree(tunnel, tree);
-				
 				try {
 					usPollerThread.join();
 					lsPollerThread.join();
@@ -205,8 +188,28 @@ public class Main {
 					e.printStackTrace();
 				}
 				
+//				if (corner == 1) {
+//					odo.setXYT(7*TILE_SIZE, 1*TILE_SIZE, 270);
+//				}
+//				if (corner == 2) {
+//					odo.setXYT(7*TILE_SIZE, 7*TILE_SIZE, 90);
+//				}
+//				if (corner == 3) {
+//					odo.setXYT(1*TILE_SIZE, 7*TILE_SIZE, 180);
+//				}
+				Sound.beep();
+				//pathToTree = Navigation.pathing(cornerCoord, home, island, tunnel, tree);
+				
+//				nav._turnTo(odo.getXYT()[2], 0);
+//				nav._travelTo(2, 2);
+//				Sound.beep();
+//				nav.moveThroughTunnel(tunnel, tree);
+//				nav.moveToTree(tunnel, tree);
+				
+
+				
 				// add coordinates of tunnel and tree here
-				float[][] paths = Navigation.pathing(new float[][] {{1,2},{2,3}}, new float[] {4,5});
+				float[][] paths = Navigation.pathing(new float[][] {{1,2},{2,4}}, new float[] {5,5});
 				for (float[] path: paths) {
 					nav.travelTo(path[0], path[1]);
 				}
