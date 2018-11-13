@@ -30,7 +30,7 @@ public class USLocalizer extends Thread implements UltrasonicController{
 	public enum LocalizationState{RESET, SEEK, SEEK_2, CORRECTION, DONE};
 
 
-	public static final double ROTATION_SPEED = 30.0;
+
 
 	
 	public static Object done = new Object();
@@ -59,7 +59,7 @@ public class USLocalizer extends Thread implements UltrasonicController{
 	public static int WALL_ERROR = 5;
 	public static int TURN_ERROR = 0;
 
-	private static final int ROTATE_SPEED = 120;
+	private static final int ROTATE_SPEED = 180;
 	public static int ACCEL = 300;
 
 	public USLocalizer(Odometer odo) {
