@@ -55,7 +55,7 @@ public class USLocalizer extends Thread implements UltrasonicController{
 	
 	public int FILTER_OUT = 20;
 	public static int FILTER_OUT_DIST = 50;
-	public static int WALL_DIST = 35;
+	public static int WALL_DIST = 30;
 	public static int WALL_ERROR = 5;
 	public static int TURN_ERROR = 0;
 

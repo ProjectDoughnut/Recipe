@@ -46,7 +46,7 @@ public class AngleSampler {
 	public float getTheta() {
 		gyro.fetchSample(gyroData, 0); // acquire data
 
-		return (-(gyroData[0])+offset)%360; 
+		return (-(gyroData[0])-offset)%360; 
 	}
 	
 	public void resetOffset() {

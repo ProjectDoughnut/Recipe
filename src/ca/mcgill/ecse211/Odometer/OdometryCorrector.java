@@ -1,10 +1,9 @@
-package ca.mcgill.ecse211.Light;
+package ca.mcgill.ecse211.Odometer;
 
+import ca.mcgill.ecse211.Gyro.AngleSampler;
+import ca.mcgill.ecse211.Light.LightController;
+import ca.mcgill.ecse211.Light.LightLocalizer;
 import ca.mcgill.ecse211.Main.Main;
-import ca.mcgill.ecse211.Odometer.Odometer;
-import ca.mcgill.ecse211.Odometer.OdometerExceptions;
-
-
 
 /**
  * 
@@ -13,12 +12,15 @@ import ca.mcgill.ecse211.Odometer.OdometerExceptions;
  *
  */
 
-public class LightCorrector implements LightController {
+public class OdometryCorrector implements LightController {
 
 	private Odometer odometer;
+	private AngleSampler gyro;
 	public boolean running = true;
+	
+	private boolean lineDetected = false;
 
-	public static float firstReading = -1;
+	public static float firstReading = LightLocalizer.firstReading;
 
 	private static final float lightThreshold = 20.0f;
 	private static final double sensorDistance = 10.0; //in cm, 4.5inches
@@ -30,9 +32,10 @@ public class LightCorrector implements LightController {
 	public static final double HALF_TILE_SIZE = Main.TILE_SIZE/2;
 	private static final float ERROR_THRESHOLD = 5.0f;
 
-	public LightCorrector() {
+	public OdometryCorrector(AngleSampler gyro) {
 		corrX = 0;
 		corrY = 0;
+		this.gyro = gyro;
 		try {
 			odometer = Odometer.getOdometer();
 		} catch (OdometerExceptions e) {
@@ -56,12 +59,19 @@ public class LightCorrector implements LightController {
 	@Override
 	public void process(int value) {
 		double xyt[] = odometer.getXYT();
+		
+		
+		// correct the angle using value gyro
+//		odometer.update(0, 0, gyro.getTheta()-xyt[2]);
 
 		if (firstReading == -1) { //Set the first reading value
 			firstReading = value;
 		}
 
-		if ((100*Math.abs(value - firstReading)/firstReading) > lightThreshold) {
+		if ((100*Math.abs(value - firstReading)/firstReading) > lightThreshold ) {
+			if (lineDetected) {
+				return;
+			}
 
 			double lineX, lineY, errorX, errorY, deltaX, deltaY;
 
@@ -93,7 +103,10 @@ public class LightCorrector implements LightController {
 				corrY = -errorY;
 				odometer.update(0, corrY, 0);
 			}
+			lineDetected = true;
 
+		} else {
+			lineDetected = false;
 		}
 
 	}

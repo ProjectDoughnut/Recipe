@@ -2,6 +2,7 @@ package ca.mcgill.ecse211.Light;
 
 
 import ca.mcgill.ecse211.Main.Navigation;
+import ca.mcgill.ecse211.Odometer.OdometryCorrector;
 import ca.mcgill.ecse211.Odometer.Odometer;
 
 import lejos.hardware.Sound;
@@ -27,7 +28,7 @@ public class LightLocalizer implements LightController{
 	private double correctedX, correctedY;
 	private double deltaThetaX, deltaThetaY, deltaTheta;
 	public static float firstReading = -1;
-	private double lightThreshold = 20.0;
+	private double lightThreshold = 35.0;
 	public float lightSensorIntensity;
 	private double sensorDistance = 11.3; //in cm, 4.5inches
 	private final double WHEEL_RAD = 2.2;
@@ -56,7 +57,7 @@ public class LightLocalizer implements LightController{
 
 			if (firstReading == -1) { //Set the first reading value
 				firstReading = value;
-				LightCorrector.firstReading = value;
+				OdometryCorrector.firstReading = value;
 			}
 
 			//At this point, the robot will (ideally) be at 0-degrees
