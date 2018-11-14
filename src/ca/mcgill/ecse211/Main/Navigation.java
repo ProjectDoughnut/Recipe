@@ -15,7 +15,8 @@ import lejos.hardware.motor.EV3LargeRegulatedMotor;
 /**
  * 
  * Navigation class drives the robot to given coordinates [x,y]. Contains methods for moving in a straight line
- * and change heading 
+ * and change heading. Contains the pathing algorithm that returns a set of points that is needed to be visited to reach
+ * the tree
  *
  */
 
@@ -82,7 +83,7 @@ public class Navigation extends Thread{
 	}
 
 	/**
-	 * Navigates to all coordinates sotred in _coordsList
+	 * Navigates to all coordinates sorted in _coordsList
 	 * 
 	 * @see java.lang.Thread#run()
 	 */
@@ -292,11 +293,10 @@ public class Navigation extends Thread{
 
 
 	/**
-	 * @param startIsland
-	 * @param endIsland
-	 * @param tunnel
-	 * @param tree
-	 * @return
+	 * @param corner Starting corner
+	 * @param tunnel Upper and lower bound coordinates of the tunnel
+	 * @param tree Coordinate of the tree on the island
+	 * @return paths_Array - Contains the set of points the robot needs to take to get to the tree through the tunnel
 	 */
 	public static float[][] pathing(int[] corner, float tunnel[][], float[] tree) {
 		ArrayList<Object> paths = new ArrayList<Object>();
