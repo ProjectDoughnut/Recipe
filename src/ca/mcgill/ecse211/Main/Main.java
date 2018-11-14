@@ -80,7 +80,7 @@ public class Main {
 	private static float[] tree = new float[2];
 	public static float[][] pathToTree;
 	private static RingColors targetRing;
-	private static final String SERVER_IP = "192.168.2.54";
+	private static final String SERVER_IP = "192.168.2.67";
 	private static final int TEAM_NUMBER = 2;
 	// Enable/disable printing of debug info from the WiFi class
 	private static final boolean ENABLE_DEBUG_WIFI_PRINT = false;
@@ -314,7 +314,7 @@ public class Main {
 					if (corner == 0 || corner == 3)
 						nav.travelTo(path[0] + 0.23f, path[1]);
 					else if (corner == 1 || corner == 2)
-						nav.travelTo(path[0], path[1] - 0.23f);
+						nav.travelTo(path[0] - 0.23f, path[1]);
 				}
 				else
 					nav.travelTo(path[0], path[1]); 
