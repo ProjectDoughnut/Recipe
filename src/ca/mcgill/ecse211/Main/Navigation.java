@@ -26,6 +26,7 @@ public class Navigation extends Thread{
 
 	private static final int FORWARD_SPEED = 200;
 	private static final int ROTATE_SPEED = 130;
+
 	private final double WHEEL_RAD;
 	private final double WHEEL_BASE;
 	private final double TILE_SIZE;
@@ -37,6 +38,9 @@ public class Navigation extends Thread{
 	public static double destX, destY, destT;
 
 	public static Object lock;
+	public static boolean tunnelPointingX;
+	public static boolean tunnelToLeft;
+	public static boolean tunnelUp;
 
 	private ArrayList<double[]> _coordsList;
 	private boolean isNavigating;
@@ -44,6 +48,10 @@ public class Navigation extends Thread{
 
 
 	private volatile boolean running;
+	private double sensorDistance = 	11.3;
+	private double corrX;
+	private double ERROR_THRESHOLD = 5.0;
+	private double corrY;
 
 
 	public Navigation(Odometer odo, EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor, 
@@ -79,21 +87,25 @@ public class Navigation extends Thread{
 	public void run() {
 		this.running = true;
 		while (!this._coordsList.isEmpty()) {
+			while(Button.waitForAnyPress() != Button.ID_ENTER);
 			if (!this.isRunning()) {
 				break;
 			}
 			double[] coords = this._coordsList.remove(0);
+
 			this._travelTo(coords[0], coords[1]);
-			if (selfCorrecting) {
-				double xyt[] = odometer.getXYT();
-				double deltaX = coords[0] - xyt[0];
-				double deltaY = coords[1] - xyt[1];
 
-				double magnitudeSqr = Math.pow(deltaX, 2) + Math.pow(deltaY, 2);
-				if (magnitudeSqr > 8) {
+			//			if (selfCorrecting) {
+			//				double xyt[] = odometer.getXYT();
+			//				double deltaX = coords[0] - xyt[0];
+			//				double deltaY = coords[1] - xyt[1];
+			//
+			//				double magnitudeSqr = Math.pow(deltaX, 2) + Math.pow(deltaY, 2);
+			//				if (magnitudeSqr > 8) {
+			//
+			//				}
+			//			}
 
-				}
-			}
 		}
 		this.running = false;
 	}
@@ -206,7 +218,9 @@ public class Navigation extends Thread{
 	 * @param navY
 	 */
 	public void syncTravelTo(double navX, double navY) {
+		this.running = true;
 		_travelTo(navX*TILE_SIZE, navY*TILE_SIZE);
+		this.running = false;
 	}
 
 
@@ -282,7 +296,7 @@ public class Navigation extends Thread{
 	 * @param tree
 	 * @return
 	 */
-	public static float[][] pathing(float tunnel[][], float[] tree) {
+	public static float[][] pathing(int[] corner, float tunnel[][], float[] tree) {
 		ArrayList<Object> paths = new ArrayList<Object>();
 		float[] tunnelVector = new float []{tunnel[1][0] -tunnel[0][0],tunnel[1][1] -tunnel[0][1]};
 		int yOnRight = 0;
@@ -300,7 +314,7 @@ public class Navigation extends Thread{
 
 		if (xOnRight !=0 && yOnRight == 0 ) {
 
-			paths.add(new float[]{1, (tunnel[0][1] + tunnel[1][1])/2});
+			paths.add(new float[]{corner[0], (tunnel[0][1] + tunnel[1][1])/2});
 
 			// if the position of the tree is less far than the one of the tunnel (tunnel overlap with terrain)
 			// we will get around it instead
@@ -365,13 +379,15 @@ public class Navigation extends Thread{
 			// go to before the y coordinate
 			if (tree[1] > (tunnel[0][1] + tunnel[1][1])/2) {
 				paths.add(new float[]{tree[0], tree[1]-1});
+				tunnelUp = true;
 			} else {
 				paths.add(new float[]{tree[0], tree[1]+1});
+				tunnelUp = false;
 			}
 
 
 		} else {
-			paths.add(new float[]{(tunnel[0][0] + tunnel[1][0])/2, 1});
+			paths.add(new float[]{((tunnel[0][0] + tunnel[1][0])/2) - 0.3f, corner[1]});
 			if (Math.abs(tree[1] - tunnel[0][1]) < Math.abs(tunnel[1][1]-tunnel[0][1])) {
 				float tunnelYpp = tunnel[1][1] +yOnRight*1;
 				paths.add(new float[]{(tunnel[0][0] + tunnel[1][0])/2, tunnelYpp});
@@ -428,8 +444,10 @@ public class Navigation extends Thread{
 			// go to before the x coordinate
 			if (tree[0] > (tunnel[0][0] + tunnel[1][0])/2) {
 				paths.add(new float[]{tree[0]-1, tree[1]});
+				tunnelToLeft = false;
 			} else {
 				paths.add(new float[]{tree[0]+1, tree[1]});
+				tunnelToLeft = true;
 			}
 
 		}
@@ -455,6 +473,63 @@ public class Navigation extends Thread{
 
 	public static int convertAngle(double radius, double width, double angle) {
 		return convertDistance(radius, Math.PI * width * angle / 360.0);
+	}
+
+
+	public boolean betweenLines() {
+
+		double[] position = odometer.getXYT();
+
+		if(position[0] % TILE_SIZE < (TILE_SIZE/8) && position[1]%TILE_SIZE < (TILE_SIZE/8)) {
+			return false;
+		}
+		return true;
+
+	}
+
+	public void adjustOdometer() {
+		double[] xyt = odometer.getXYT();
+
+		double lineX, lineY, errorX, errorY, deltaX, deltaY;
+
+		deltaX = Math.sin(Math.toRadians(xyt[2])) * sensorDistance;
+		deltaY = Math.cos(Math.toRadians(xyt[2])) * sensorDistance;
+		lineX = xyt[0] - deltaX;
+		lineY = xyt[1] - deltaY;
+
+		errorX = lineX % TILE_SIZE;
+		if (errorX >= TILE_SIZE/2) {
+			errorX -= TILE_SIZE;
+		} else if (errorX <= -TILE_SIZE/2) {
+			errorX += TILE_SIZE;
+		}
+
+		errorY = lineY % TILE_SIZE;
+		if (errorY >= TILE_SIZE/2) {
+			errorY -= TILE_SIZE;
+		} else if (errorY <= -TILE_SIZE/2) {
+			errorY += TILE_SIZE;
+		}
+
+		if (Math.abs(errorX) <= ERROR_THRESHOLD && errorX <= errorY) {
+			corrX = -errorX;
+
+			odometer.update(corrX, 0, 0);
+
+		} else if (Math.abs(errorY) <= ERROR_THRESHOLD) {
+			// probably y line
+
+			corrY = -errorY;
+			odometer.update(0, corrY, 0);
+
+
+		}
+
+	}
+
+
+	public void adjustTheta(float a) {
+		odometer.setTheta(a);
 	}
 }
 

@@ -9,8 +9,11 @@ import lejos.hardware.Sound;
 /**
  * 
  * ColorClassifier compares the data received by the color sensor to the RGB values 
- * of the different coloured rings using Gaussian distribution and beeps accordingly, e.g. one beep for for blue
+ * of the different coloured rings using Gaussian distribution and beeps accordingly, e.g. one beep for blue
  * two beeps for green, etc
+ * It implements the ColorController class and is called by the ColorPoller class. 
+ * The process() method is essentially the main method, and it checks whether the object placed in front of the sensor
+ * falls within any of the color distributions using the detectColr() and withinGaussDist() methods. 
  *
  */
 
@@ -75,41 +78,39 @@ public class ColorClassifier implements ColorController{
 		RingColors ring = detectColor(values);
 		
 		
-		
-		if (ring != null && detectedRings.indexOf(ring) == -1 && !this.classifyingDemo) {
+		if (ring != null && detectedRings.indexOf(ring) == -1) {
 			detectedRings.add(ring);
 			detectedRingValues.add(values);
 			ColorClassifier.detectedRing = ring;
 			
-			if (ring == targetRing) {
+			if (ring == RingColors.BLUE) {
 				Sound.beep();
-
-				// stopping navigation
-				targetDetected = true;
-				targetLocation = odo.getXYT();
-				targetRGBValues = values;
-				Object lock = new Object();
-				Navigation.lock = lock;
-				nav.setRunning(false);
-				nav.clearCoordList();
-
-				Navigation.lock = null;
-				synchronized(lock) {
-					lock.notifyAll();
-				}
-				// stopping this thread
-					this.running = false;
-			} else {
+			}
+			else if (ring == RingColors.GREEN) {
 				Sound.twoBeeps();
 			}
-			
-		} else if (ring != null && classifyingDemo) {
-			Sound.buzz();
-			ColorClassifier.detectedRing = ring;
-		}	
+			else if (ring == RingColors.YELLOW) {
+				Sound.beep();
+				Sound.twoBeeps();
+			}
+			else if (ring == RingColors.ORANGE) {
+				Sound.twoBeeps();
+				Sound.twoBeeps();
+			}
+
+			//this.running = false;
+			} 
+
 	}
 
-
+	/*
+	 * The detectColor() method takes in the current RGB values detected by the sensor and compares them to the data collected
+	 * during sensor callibration.
+	 * 
+	 * @param RGB values
+	 * @return RingColors
+	 * 
+	 */
 	public RingColors detectColor(float[] values) {
 		float R, G, B;
 		R = values[0];
@@ -137,6 +138,15 @@ public class ColorClassifier implements ColorController{
 	}
 
 
+	/*
+	 * The withinGaussDist() method determines whether or not the given RGB value is within the Gaussian distance of the data for the specified ring color
+	 * 
+	 * @param RGB value
+	 * @param target ring data
+	 * @param sigma
+	 * 
+	 * @return boolean
+	 */
 	public boolean withinGaussDist(double value, double[] target, int sigma) {
 		return (Math.abs(value - target[0]) <= sigma * target[1]);
 	}
