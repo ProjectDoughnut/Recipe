@@ -175,21 +175,21 @@ public class Main {
 //				ringCollector.getRings();
 
 				//Pointing y or x:
-				Navigation.tunnelPointingX = false;
+				Navigation.tunnelPointingX = true;
 				
 				//If x, is the tree further up or down:
-				//Navigation.tunnelUp = false;
+				Navigation.tunnelUp = true;
 				
 				//If y, is the tree to the left or right:
-				Navigation.tunnelToLeft = false;
-				odo.setXYT(4*TILE_SIZE, 7*TILE_SIZE, 90);
+				//Navigation.tunnelToLeft = false;
+				//odo.setXYT(3*TILE_SIZE, 3*TILE_SIZE, 90);
 				
-
-				
-				Thread ringCollectThread = new Thread(ringCollector);
-				ringCollectThread.start();
+				//Thread ringCollectThread = new Thread(ringCollector);
+				//ringCollectThread.start();
 				Thread colorThread = new Thread(csPoller);
 				colorThread.start();
+	
+				
 
 			}
 			else if (buttonChoice == Button.ID_RIGHT) {
@@ -236,7 +236,20 @@ public class Main {
 				float[][] paths = Navigation.pathing(cornerXY, tunnel, tree);
 
 				for (float[] path: paths) {
-					nav.travelTo(path[0], path[1]);
+					if (path[0] == cornerXY[0]) {
+						if (corner == 0 || corner == 1)
+							nav.travelTo(path[0], path[1] + 0.23f);
+						else if (corner == 2 || corner == 3)
+							nav.travelTo(path[0], path[1] - 0.23f);
+					}
+					else if (path[1] == cornerXY[1]) {
+						if (corner == 0 || corner == 3)
+							nav.travelTo(path[0] + 0.23f, path[1]);
+						else if (corner == 1 || corner == 2)
+							nav.travelTo(path[0] - 0.26f, path[1]);
+					}
+					else
+						nav.travelTo(path[0], path[1]);
 				}
 				   
 				Thread navThread = new Thread(nav);
@@ -291,7 +304,20 @@ public class Main {
 			// add coordinates of tunnel and tree here
 			float[][] paths = Navigation.pathing(cornerXY, tunnel, tree);
 			for (float[] path: paths) {
-				nav.travelTo(path[0], path[1]);
+				if (path[0] == cornerXY[0]) {
+					if (corner == 0 || corner == 1)
+						nav.travelTo(path[0], path[1] + 0.23f);
+					else if (corner == 2 || corner == 3)
+						nav.travelTo(path[0], path[1] - 0.23f);
+				}
+				else if (path[1] == cornerXY[1]) {
+					if (corner == 0 || corner == 3)
+						nav.travelTo(path[0] + 0.23f, path[1]);
+					else if (corner == 1 || corner == 2)
+						nav.travelTo(path[0], path[1] - 0.23f);
+				}
+				else
+					nav.travelTo(path[0], path[1]); 
 			}
 			   
 			Thread navThread = new Thread(nav);
@@ -308,6 +334,8 @@ public class Main {
 			// start ring collection thread
 			
 			RingCollection ringCollector = new RingCollection(odo, nav, clawServo, tunnel, tree, island, WHEEL_RAD, sensorDistance);
+			
+			while(Button.waitForAnyPress() != Button.ID_ENTER);
 
 			Thread ringCollectThread = new Thread(ringCollector);
 			ringCollectThread.start();

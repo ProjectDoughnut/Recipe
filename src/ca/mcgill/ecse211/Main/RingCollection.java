@@ -26,7 +26,7 @@ public class RingCollection extends Thread{
 	private float[] tree;
 	private double WHEEL_RADIUS;
 	private double sensorDistance;
-	private double toBranch = 10;
+	private double toBranch = 15;
 	public static Object done = new Object();
 	
 	public boolean running;
@@ -58,85 +58,214 @@ public class RingCollection extends Thread{
 		if (nav.tunnelPointingX && nav.tunnelUp) {
 			
 			//This is not taking into account island or wall parameters
-			//SHOULD THESE BE SYNCTRAVELTO????
-			getRings();
-			nav.syncTravelTo(tree[0] - 1, tree[1] - 1);
-			nav.syncTravelTo(tree[0] - 1, tree[1]);
-			nav.turnTo(odo.getXYT()[2], 90);
-			getRings();
-			nav.syncTravelTo(tree[0] - 1, tree[1] + 1);
-			nav.syncTravelTo(tree[0], tree[1] + 1);
-			//Not sure about this turn
-			nav.turnTo(odo.getXYT()[2], 180);
-			getRings();
-			nav.syncTravelTo(tree[0] + 1, tree[1] + 1);
-			nav.syncTravelTo(tree[0] + 1, tree[1]);
-			nav.turnTo(odo.getXYT()[2], -90);
-			getRings();
-			nav.syncTravelTo(tree[0] + 1, tree[1] - 1);
-			nav.syncTravelTo(tree[0], tree[1] - 1);
+			
+			if (tree[0] == 7 || tree[0] == 1) {
+
+				nav.turnTo(odo.getXYT()[2], 0);
+				odo.setX(tree[0]);
+				odo.setY(tree[1] - 1);
+				getRings();
+				nav.syncTravelTo(tree[0] - 1, tree[1] - 1);
+				nav.syncTravelTo(tree[0] - 1, tree[1]);
+				nav.turnTo(odo.getXYT()[2], 90);
+				getRings();
+				nav.syncTravelTo(tree[0] - 1, tree[1] + 1);
+				nav.syncTravelTo(tree[0], tree[1] + 1);
+				//Not sure about this turn
+				nav.turnTo(odo.getXYT()[2], 180);
+				getRings();
+			}
+			else if ((tree[1] == 7 || tree[1] == 1) || ((tree[0] == 7 || tree[0] == 1) && (tree[1] == 7 || tree[1] == 1))) {
+				nav.turnTo(odo.getXYT()[2], 0);
+				odo.setX(tree[0]);
+				odo.setY(tree[1] - 1);
+				getRings();
+				nav.syncTravelTo(tree[0] - 1, tree[1] - 1);
+				nav.syncTravelTo(tree[0] - 1, tree[1]);
+				nav.turnTo(odo.getXYT()[2], 90);
+				getRings();
+				
+			}
+
+			else {
+				nav.turnTo(odo.getXYT()[2], 0);
+				odo.setX(tree[0]);
+				odo.setY(tree[1] - 1);
+				getRings();
+				nav.syncTravelTo(tree[0] - 1, tree[1] - 1);
+				nav.syncTravelTo(tree[0] - 1, tree[1]);
+				nav.turnTo(odo.getXYT()[2], 90);
+				getRings();
+				nav.syncTravelTo(tree[0] - 1, tree[1] + 1);
+				nav.syncTravelTo(tree[0], tree[1] + 1);
+				//Not sure about this turn
+				nav.turnTo(odo.getXYT()[2], 180);
+				getRings();
+				nav.syncTravelTo(tree[0] + 1, tree[1] + 1);
+				nav.syncTravelTo(tree[0] + 1, tree[1]);
+				nav.turnTo(odo.getXYT()[2], -90);
+				getRings();
+				nav.syncTravelTo(tree[0] + 1, tree[1] - 1);
+				nav.syncTravelTo(tree[0], tree[1] - 1);
+			}
 			
 		}
 		else if (nav.tunnelPointingX && !nav.tunnelUp) {
 			
-			getRings();
-			nav.syncTravelTo(tree[0] + 1, tree[1] + 1);
-			nav.syncTravelTo(tree[0] + 1, tree[1]);
-			//Not sure about this angle:
-			nav.turnTo(odo.getXYT()[2], -90);
-			getRings();
-			nav.syncTravelTo(tree[0] + 1, tree[1] - 1);
-			nav.syncTravelTo(tree[0], tree[1] - 1);
-			//Not sure about this angle:
-			nav.turnTo(odo.getXYT()[2], 0);
-			getRings();
-			nav.syncTravelTo(tree[0] - 1, tree[1] - 1);
-			nav.syncTravelTo(tree[0] - 1, tree[1]);
-			//Not sure:
-			nav.turnTo(odo.getXYT()[2], 90);
-			getRings();
-			nav.syncTravelTo(tree[0] - 1, tree[1] + 1);
-			nav.syncTravelTo(tree[0], tree[1] + 1);
+			if (tree[0] == 7 || tree[0] == 1) {
+				
+				nav.turnTo(odo.getXYT()[2], 180);
+				odo.setX(tree[0]);
+				odo.setY(tree[1] + 1);
+				getRings();
+				nav.syncTravelTo(tree[0] - 1, tree[1] + 1);
+				nav.syncTravelTo(tree[0] - 1, tree[1]);
+				nav.turnTo(odo.getXYT()[2], 90);
+				getRings();
+				nav.syncTravelTo(tree[0] - 1, tree[1] - 1);
+				nav.syncTravelTo(tree[0], tree[1] - 1);
+				//Not sure about this angle:
+				nav.turnTo(odo.getXYT()[2], 0);
+				getRings();
+			}
+			else if ((tree[1] == 7 || tree[1] == 1) || ((tree[0] == 7 || tree[0] == 1) && (tree[1] == 7 || tree[1] == 1))) {
+				
+				nav.turnTo(odo.getXYT()[2], 180);
+				odo.setX(tree[0]);
+				odo.setY(tree[1] + 1);
+				getRings();
+				nav.syncTravelTo(tree[0] - 1, tree[1] + 1);
+				nav.syncTravelTo(tree[0] - 1, tree[1]);
+				nav.turnTo(odo.getXYT()[2], 90);
+				getRings();
+			}
+			else {
+				
+				nav.turnTo(odo.getXYT()[2], 180);
+				odo.setX(tree[0]);
+				odo.setY(tree[1] + 1);
+				getRings();
+				nav.syncTravelTo(tree[0] + 1, tree[1] + 1);
+				nav.syncTravelTo(tree[0] + 1, tree[1]);
+				//Not sure about this angle:
+				nav.turnTo(odo.getXYT()[2], -90);
+				getRings();
+				nav.syncTravelTo(tree[0] + 1, tree[1] - 1);
+				nav.syncTravelTo(tree[0], tree[1] - 1);
+				//Not sure about this angle:
+				nav.turnTo(odo.getXYT()[2], 0);
+				getRings();
+				nav.syncTravelTo(tree[0] - 1, tree[1] - 1);
+				nav.syncTravelTo(tree[0] - 1, tree[1]);
+				//Not sure:
+				nav.turnTo(odo.getXYT()[2], 90);
+				getRings();
+				nav.syncTravelTo(tree[0] - 1, tree[1] + 1);
+				nav.syncTravelTo(tree[0], tree[1] + 1);
+			}
 			
 		}
 		else if (!nav.tunnelPointingX && nav.tunnelToLeft) {
 			
-			getRings();
-			nav.syncTravelTo(tree[0] + 1, tree[1] - 1);
-			nav.syncTravelTo(tree[0], tree[1] - 1);
-			nav.turnTo(odo.getXYT()[2], 0);
-			getRings();
-			nav.syncTravelTo(tree[0] - 1, tree[1] - 1);
-			nav.syncTravelTo(tree[0] - 1, tree[1]);
-			//Not sure about this turn
-			nav.turnTo(odo.getXYT()[2], 90);
-			getRings();
-			nav.syncTravelTo(tree[0] - 1, tree[1] + 1);
-			nav.syncTravelTo(tree[0], tree[1] + 1);
-			nav.turnTo(odo.getXYT()[2], 180);
-			getRings();
-			nav.syncTravelTo(tree[0] + 1, tree[1] + 1);
-			nav.syncTravelTo(tree[0] + 1, tree[1]);
+			if (tree[1] == 7 || tree[1] == 1) {
+				
+				nav.turnTo(odo.getXYT()[2], -90);
+				odo.setX(tree[0] + 1);
+				odo.setY(tree[1]);
+				getRings();
+				nav.syncTravelTo(tree[0] + 1, tree[1] - 1);
+				nav.syncTravelTo(tree[0], tree[1] - 1);
+				nav.turnTo(odo.getXYT()[2], 0);
+				getRings();
+				nav.syncTravelTo(tree[0] - 1, tree[1] - 1);
+				nav.syncTravelTo(tree[0] - 1, tree[1]);
+				//Not sure about this turn
+				nav.turnTo(odo.getXYT()[2], 90);
+				getRings();
+			}
+			else if ((tree[0] == 7 || tree[0] == 1) || ((tree[0] == 7 || tree[0] == 1) && (tree[1] == 7 || tree[1] == 1))) {
+				nav.turnTo(odo.getXYT()[2], -90);
+				odo.setX(tree[0] + 1);
+				odo.setY(tree[1]);
+				getRings();
+				nav.syncTravelTo(tree[0] + 1, tree[1] - 1);
+				nav.syncTravelTo(tree[0], tree[1] - 1);
+				nav.turnTo(odo.getXYT()[2], 0);
+				getRings();
+			}
+			else {
+				nav.turnTo(odo.getXYT()[2], -90);
+				odo.setX(tree[0] + 1);
+				odo.setY(tree[1]);
+				getRings();
+				nav.syncTravelTo(tree[0] + 1, tree[1] - 1);
+				nav.syncTravelTo(tree[0], tree[1] - 1);
+				nav.turnTo(odo.getXYT()[2], 0);
+				getRings();
+				nav.syncTravelTo(tree[0] - 1, tree[1] - 1);
+				nav.syncTravelTo(tree[0] - 1, tree[1]);
+				//Not sure about this turn
+				nav.turnTo(odo.getXYT()[2], 90);
+				getRings();
+				nav.syncTravelTo(tree[0] - 1, tree[1] + 1);
+				nav.syncTravelTo(tree[0], tree[1] + 1);
+				nav.turnTo(odo.getXYT()[2], 180);
+				getRings();
+				nav.syncTravelTo(tree[0] + 1, tree[1] + 1);
+				nav.syncTravelTo(tree[0] + 1, tree[1]);
+			}
 			
 		}
 		else if (!nav.tunnelPointingX && !nav.tunnelToLeft) {
 			
-			getRings();
-			nav.syncTravelTo(tree[0] - 1, tree[1] + 1);
-			nav.syncTravelTo(tree[0], tree[1] + 1);
-			nav.turnTo(odo.getXYT()[2], 180);
-			getRings();
-			nav.syncTravelTo(tree[0] + 1, tree[1] + 1);
-			nav.syncTravelTo(tree[0] + 1, tree[1]);
-			//Not sure about this turn
-			nav.turnTo(odo.getXYT()[2], -90);
-			getRings();
-			nav.syncTravelTo(tree[0] + 1, tree[1] - 1);
-			nav.syncTravelTo(tree[0], tree[1] - 1);
-			nav.turnTo(odo.getXYT()[2], 0);
-			getRings();
-			nav.syncTravelTo(tree[0] - 1, tree[1] - 1);
-			nav.syncTravelTo(tree[0] - 1, tree[1]);
+			if (tree[1] == 7 || tree[1] == 1) {
+				
+				nav.turnTo(odo.getXYT()[2], 90);
+				odo.setX(tree[0] - 1);
+				odo.setY(tree[1]);
+				getRings();
+				nav.syncTravelTo(tree[0] - 1, tree[1] - 1);
+				nav.syncTravelTo(tree[0], tree[1] - 1);
+				nav.turnTo(odo.getXYT()[2], 0);
+				getRings();
+				nav.syncTravelTo(tree[0] + 1, tree[1] - 1);
+				nav.syncTravelTo(tree[0] + 1, tree[1]);
+				nav.turnTo(odo.getXYT()[2], -90);
+				getRings();
+			}
+			else if ((tree[0] == 7 || tree[0] == 1) || ((tree[0] == 7 || tree[0] == 1) && (tree[1] == 7 || tree[1] == 1))) {
+				
+				nav.turnTo(odo.getXYT()[2], 90);
+				odo.setX(tree[0] - 1);
+				odo.setY(tree[1]);
+				getRings();
+				nav.syncTravelTo(tree[0] - 1, tree[1] - 1);
+				nav.syncTravelTo(tree[0], tree[1] - 1);
+				nav.turnTo(odo.getXYT()[2], 0);
+				getRings();
+				
+			}
+			else { 
+				nav.turnTo(odo.getXYT()[2], 90);
+				odo.setX(tree[0] - 1);
+				odo.setY(tree[1]);
+				getRings();
+				nav.syncTravelTo(tree[0] - 1, tree[1] + 1);
+				nav.syncTravelTo(tree[0], tree[1] + 1);
+				nav.turnTo(odo.getXYT()[2], 180);
+				getRings();
+				nav.syncTravelTo(tree[0] + 1, tree[1] + 1);
+				nav.syncTravelTo(tree[0] + 1, tree[1]);
+				//Not sure about this turn
+				nav.turnTo(odo.getXYT()[2], -90);
+				getRings();
+				nav.syncTravelTo(tree[0] + 1, tree[1] - 1);
+				nav.syncTravelTo(tree[0], tree[1] - 1);
+				nav.turnTo(odo.getXYT()[2], 0);
+				getRings();
+				nav.syncTravelTo(tree[0] - 1, tree[1] - 1);
+				nav.syncTravelTo(tree[0] - 1, tree[1]);
+			}
 		}
 	}
 

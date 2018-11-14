@@ -24,7 +24,7 @@ public class Navigation extends Thread{
 	private EV3LargeRegulatedMotor leftMotor;
 	private EV3LargeRegulatedMotor rightMotor;
 
-	private static final int FORWARD_SPEED = 200;
+	private static final int FORWARD_SPEED = 250;
 	private static final int ROTATE_SPEED = 130;
 
 	private final double WHEEL_RAD;
@@ -41,6 +41,8 @@ public class Navigation extends Thread{
 	public static boolean tunnelPointingX;
 	public static boolean tunnelToLeft;
 	public static boolean tunnelUp;
+	public static int yOnRight;
+	public static int xOnRight;
 
 	private ArrayList<double[]> _coordsList;
 	private boolean isNavigating;
@@ -87,7 +89,7 @@ public class Navigation extends Thread{
 	public void run() {
 		this.running = true;
 		while (!this._coordsList.isEmpty()) {
-			while(Button.waitForAnyPress() != Button.ID_ENTER);
+			//while(Button.waitForAnyPress() != Button.ID_ENTER);
 			if (!this.isRunning()) {
 				break;
 			}
@@ -299,8 +301,8 @@ public class Navigation extends Thread{
 	public static float[][] pathing(int[] corner, float tunnel[][], float[] tree) {
 		ArrayList<Object> paths = new ArrayList<Object>();
 		float[] tunnelVector = new float []{tunnel[1][0] -tunnel[0][0],tunnel[1][1] -tunnel[0][1]};
-		int yOnRight = 0;
-		int xOnRight = 0;
+		yOnRight = 0;
+		xOnRight = 0;
 		if (tunnelVector[0] > 0 && tunnelVector[1] > 0 ) {
 			yOnRight = 1;
 
@@ -314,6 +316,7 @@ public class Navigation extends Thread{
 
 		if (xOnRight !=0 && yOnRight == 0 ) {
 
+			tunnelPointingX = true;
 			paths.add(new float[]{corner[0], (tunnel[0][1] + tunnel[1][1])/2});
 
 			// if the position of the tree is less far than the one of the tunnel (tunnel overlap with terrain)
@@ -378,16 +381,17 @@ public class Navigation extends Thread{
 			}
 			// go to before the y coordinate
 			if (tree[1] > (tunnel[0][1] + tunnel[1][1])/2) {
-				paths.add(new float[]{tree[0], tree[1]-1});
+				paths.add(new float[]{tree[0] + 0.5f, tree[1] - 1.0f});
 				tunnelUp = true;
 			} else {
-				paths.add(new float[]{tree[0], tree[1]+1});
+				paths.add(new float[]{tree[0] + 0.5f, tree[1] + 1.5f});
 				tunnelUp = false;
 			}
 
 
 		} else {
-			paths.add(new float[]{((tunnel[0][0] + tunnel[1][0])/2) - 0.3f, corner[1]});
+			tunnelPointingX = false;
+			paths.add(new float[]{((tunnel[0][0] + tunnel[1][0])/2), corner[1]});
 			if (Math.abs(tree[1] - tunnel[0][1]) < Math.abs(tunnel[1][1]-tunnel[0][1])) {
 				float tunnelYpp = tunnel[1][1] +yOnRight*1;
 				paths.add(new float[]{(tunnel[0][0] + tunnel[1][0])/2, tunnelYpp});
@@ -443,10 +447,10 @@ public class Navigation extends Thread{
 			}
 			// go to before the x coordinate
 			if (tree[0] > (tunnel[0][0] + tunnel[1][0])/2) {
-				paths.add(new float[]{tree[0]-1, tree[1]});
+				paths.add(new float[]{tree[0]-1.5f, tree[1] + 0.5f});
 				tunnelToLeft = false;
 			} else {
-				paths.add(new float[]{tree[0]+1, tree[1]});
+				paths.add(new float[]{tree[0] + 1.0f, tree[1] +0.5f});
 				tunnelToLeft = true;
 			}
 

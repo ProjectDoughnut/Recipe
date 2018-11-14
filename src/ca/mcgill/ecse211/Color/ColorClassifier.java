@@ -78,7 +78,7 @@ public class ColorClassifier implements ColorController{
 		RingColors ring = detectColor(values);
 		
 		
-		if (ring != null && detectedRings.indexOf(ring) == -1) {
+		if (ring != null ) {
 			detectedRings.add(ring);
 			detectedRingValues.add(values);
 			ColorClassifier.detectedRing = ring;
@@ -98,7 +98,7 @@ public class ColorClassifier implements ColorController{
 				Sound.twoBeeps();
 			}
 
-			this.running = false;
+			//this.running = false;
 			} 
 
 	}

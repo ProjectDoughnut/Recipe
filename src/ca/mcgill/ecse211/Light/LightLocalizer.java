@@ -144,7 +144,7 @@ public class LightLocalizer implements LightController{
 			odo.setXYT(correctedX, correctedY, -deltaTheta);	
 
 			nav.syncTravelTo(1, 1);
-			nav.turnTo(odo.getXYT()[2], 1);
+			nav.turnTo(odo.getXYT()[2], 2);
 			Sound.beep();
 			this.state = LocalizationState.DONE;
 			break;
