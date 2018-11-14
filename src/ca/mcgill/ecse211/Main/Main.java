@@ -126,12 +126,8 @@ public class Main {
 		
 		// define light corrector
 
-		
 		ColorClassifier CSLocal = new ColorClassifier(odo, nav, targetRing, false);
 		
-
-
-
 		double[] xyt;
 
 		ColorPoller csPoller = new ColorPoller(csValue, CSLocal);
@@ -235,8 +231,6 @@ public class Main {
 				//pathToTree = Navigation.pathing(cornerCoord, home, island, tunnel, tree);
 				
 				
-
-				
 				// add coordinates of tunnel and tree here
 
 				float[][] paths = Navigation.pathing(cornerXY, tunnel, tree);
@@ -302,6 +296,35 @@ public class Main {
 			   
 			Thread navThread = new Thread(nav);
 			navThread.start();
+			
+			try {
+				navThread.join();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
+			// start ring collection thread
+			
+			RingCollection ringCollector = new RingCollection(odo, nav, clawServo, tunnel, tree, island, WHEEL_RAD, sensorDistance);
+
+			Thread ringCollectThread = new Thread(ringCollector);
+			ringCollectThread.start();
+			Thread colorThread = new Thread(csPoller);
+			colorThread.start();
+			
+			
+			// wait for color thread to join (ided one ring)
+			try {
+				colorThread.join();
+				// EMERGENCY EXIT :)
+				System.exit(0);
+			
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
 //			AngleCorrection angleCorrect = new AngleCorrection(nav, gyro);
 //			Thread angleCorrectThread = new Thread(angleCorrect);
