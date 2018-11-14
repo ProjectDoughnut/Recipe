@@ -32,7 +32,7 @@ public class LightLocalizer implements LightController{
 	private double sensorDistance = 11.3; //in cm, 4.5inches
 	private final double WHEEL_RAD = 2.2;
 	private double[] lineAngles, linePos;
-	private static final int ROTATE_SPEED = 200;
+	private static final int ROTATE_SPEED = 150 ;
 	
 	public static Object lock;
 	public boolean running;
@@ -143,7 +143,7 @@ public class LightLocalizer implements LightController{
 			odo.setXYT(correctedX, correctedY, -deltaTheta);	
 
 			nav.syncTravelTo(1, 1);
-			nav.turnTo(odo.getXYT()[2], 7);
+			nav.turnTo(odo.getXYT()[2], 1);
 			Sound.beep();
 			this.state = LocalizationState.DONE;
 			break;

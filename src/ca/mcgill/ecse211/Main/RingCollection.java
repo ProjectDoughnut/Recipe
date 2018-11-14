@@ -26,7 +26,7 @@ public class RingCollection extends Thread{
 	private float[] tree;
 	private double WHEEL_RADIUS;
 	private double sensorDistance;
-	private double toBranch = 5;
+	private double toBranch = 10;
 	public static Object done = new Object();
 	
 	public boolean running;
@@ -46,6 +46,7 @@ public class RingCollection extends Thread{
 	@SuppressWarnings("static-access")
 	public void run() {
 		
+
 		//Lock the color thread until this thread begins
 
 		
@@ -144,7 +145,9 @@ public class RingCollection extends Thread{
 	 * This also runs under the assumption that the ring is already at the correct angle, facing the branch
 	 */
 	public void getRings() {
-		
+		servo.setSpeed(50);
+		odo.leftMotor.setSpeed(80);
+		odo.rightMotor.setSpeed(80);
 		//Open claw
 		servo.rotate(90);
 		

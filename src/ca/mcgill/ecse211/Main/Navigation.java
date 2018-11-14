@@ -205,7 +205,9 @@ public class Navigation extends Thread{
 	 * @param navY
 	 */
 	public void syncTravelTo(double navX, double navY) {
+		this.running = true;
 		_travelTo(navX*TILE_SIZE, navY*TILE_SIZE);
+		this.running = false;
 	}
 
 
@@ -291,7 +293,7 @@ public class Navigation extends Thread{
 		}
 
 		if (tunnelPointingX) {
-			paths.add(new float[]{corner[0], (tunnel[0][1] + tunnel[1][1])/2});
+			paths.add(new float[]{corner[0], ((tunnel[0][1] + tunnel[1][1])/2) - 0.3f} );
 			// if the position of the tree is less far than the one of the tunnel (tunnel overlap with terrain)
 			// we will get around it instead
 			if (Math.abs(tree[0] - tunnel[0][0]) < Math.abs(tunnel[1][0]-tunnel[0][0])) {
@@ -326,7 +328,7 @@ public class Navigation extends Thread{
 
 
 		} else {
-			paths.add(new float[]{(tunnel[0][0] + tunnel[1][0])/2, corner[1]});
+			paths.add(new float[]{((tunnel[0][0] + tunnel[1][0])/2) - 0.3f, corner[1]});
 			if (Math.abs(tree[1] - tunnel[0][1]) < Math.abs(tunnel[1][1]-tunnel[0][1])) {
 
 				float tunnelYpp = tunnel[1][1]-tunnel[0][1] + 1;

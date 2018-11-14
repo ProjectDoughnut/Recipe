@@ -66,7 +66,7 @@ public class Main {
 	private static final TextLCD lcd = LocalEV3.get().getTextLCD();
 
 	public static final double WHEEL_RAD = 2.2;
-	public static final double WHEEL_BASE = 12.5;
+	public static final double WHEEL_BASE = 12.2;
 	public static final double TILE_SIZE = 30.48;
 	public static final double sensorDistance = 11.3;
 	
@@ -98,7 +98,7 @@ public class Main {
 		exitThread.start();
 		
 	    
-		//getWiFiParameters();
+		getWiFiParameters();
 		lcd.clear();
 	    
 		int buttonChoice;
@@ -175,8 +175,10 @@ public class Main {
 				
 				RingCollection ringCollector = new RingCollection(odo, nav, clawServo, tunnel, tree, island, WHEEL_RAD, sensorDistance);
 				//Set which position its gonna be in: depending on where the tree is located
-			
-				ringCollector.getRings();
+//				clawServo.setSpeed(45);
+//				leftMotor.setSpeed(80);
+//				rightMotor.setSpeed(80);
+//				ringCollector.getRings();
 
 				//Pointing y or x:
 				Navigation.tunnelPointingX = false;
@@ -186,14 +188,14 @@ public class Main {
 				
 				//If y, is the tree to the left or right:
 				Navigation.tunnelToLeft = false;
+				odo.setXYT(4*TILE_SIZE, 7*TILE_SIZE, 90);
 				
-//				Thread navThread = new Thread(nav);
-//				navThread.start();
-//				
-//				Thread ringCollectThread = new Thread(ringCollector);
-//				ringCollectThread.start();
-//				Thread colorThread = new Thread(csPoller);
-//				colorThread.start();
+
+				
+				Thread ringCollectThread = new Thread(ringCollector);
+				ringCollectThread.start();
+				Thread colorThread = new Thread(csPoller);
+				colorThread.start();
 
 			}
 			else if (buttonChoice == Button.ID_RIGHT) {
