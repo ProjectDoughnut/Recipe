@@ -11,8 +11,10 @@ import ca.mcgill.ecse211.Gyro.AngleSampler;
 import ca.mcgill.ecse211.Color.ColorPoller;
 import ca.mcgill.ecse211.Light.LightLocalizer;
 import ca.mcgill.ecse211.Light.LightPoller;
+import ca.mcgill.ecse211.Light.TwoLightPoller;
 import ca.mcgill.ecse211.Odometer.Odometer;
 import ca.mcgill.ecse211.Odometer.OdometerExceptions;
+import ca.mcgill.ecse211.Odometer.OdometryCorrector;
 import lejos.hardware.Button;
 import lejos.hardware.Sound;
 import lejos.hardware.ev3.LocalEV3;
@@ -42,22 +44,21 @@ public class Main {
 	private static final EV3MediumRegulatedMotor clawServo = new EV3MediumRegulatedMotor(LocalEV3.get().getPort("C"));
 
 	private static final Port usPort = LocalEV3.get().getPort("S3");
-	private static final Port gyroPort = LocalEV3.get().getPort("S4");
+	private static final Port lsPort2 = LocalEV3.get().getPort("S4");
 	private static final Port lsPort = LocalEV3.get().getPort("S2");
 	private static final Port csPort = LocalEV3.get().getPort("S1");
 
 	//Setting up ultrasonic sensor
 	public static UARTSensor usSensor = new EV3UltrasonicSensor(usPort);
 	public static SampleProvider usValue = usSensor.getMode("Distance");
-
-	//Setting up gyro sensor 
-	public static EV3GyroSensor gyroSensor = new EV3GyroSensor(gyroPort);
-	public static SampleProvider gyroValue = gyroSensor.getMode("Angle");
 	
 	//Setting up light sensor
 
 	public static UARTSensor lsSensor = new EV3ColorSensor(lsPort);
 	public static SampleProvider lsValue = lsSensor.getMode("Red");
+	
+	public static UARTSensor lsSensor2 = new EV3ColorSensor(lsPort2);
+	public static SampleProvider lsValue2 = lsSensor2.getMode("Red");
 	
 	public static EV3ColorSensor csSensor = new EV3ColorSensor(csPort);
 	public static SampleProvider csValue = csSensor.getRGBMode();
@@ -118,11 +119,7 @@ public class Main {
 		LightLocalizer LSLocal = new LightLocalizer(odo, nav);
 		LightLocalizer.lock = USLocalizer.done;
 		LightPoller lsPoller = new LightPoller(lsValue, LSLocal);
-
-		
-		// define gyro corrector
-		AngleSampler gyro = new AngleSampler(gyroValue);
-		
+	
 		
 		// define light corrector
 
@@ -184,8 +181,6 @@ public class Main {
 				Navigation.tunnelToLeft = false;
 				odo.setXYT(4*TILE_SIZE, 7*TILE_SIZE, 90);
 				
-
-				
 				Thread ringCollectThread = new Thread(ringCollector);
 				ringCollectThread.start();
 				Thread colorThread = new Thread(csPoller);
@@ -231,8 +226,14 @@ public class Main {
 				//pathToTree = Navigation.pathing(cornerCoord, home, island, tunnel, tree);
 				
 				
+				// start the odo correction thread
+				OdometryCorrector odoCorrector = new OdometryCorrector(nav);
+				TwoLightPoller odoCorrectorPoller = new TwoLightPoller(lsValue, lsValue2, odoCorrector);
+				Thread odoCorrectorThread = new Thread(odoCorrectorPoller);
+				odoCorrectorThread.start();
+				
 				// add coordinates of tunnel and tree here
-
+				
 				float[][] paths = Navigation.pathing(cornerXY, tunnel, tree);
 
 				for (float[] path: paths) {
@@ -288,6 +289,12 @@ public class Main {
 			}
 			Sound.beep();
 			
+			// start the odo correction thread
+			OdometryCorrector odoCorrector = new OdometryCorrector(nav);
+			TwoLightPoller odoCorrectorPoller = new TwoLightPoller(lsValue, lsValue2, odoCorrector);
+			Thread odoCorrectorThread = new Thread(odoCorrectorPoller);
+			odoCorrectorThread.start();
+			
 			// add coordinates of tunnel and tree here
 			float[][] paths = Navigation.pathing(cornerXY, tunnel, tree);
 			for (float[] path: paths) {
@@ -326,9 +333,6 @@ public class Main {
 				e.printStackTrace();
 			}
 			
-//			AngleCorrection angleCorrect = new AngleCorrection(nav, gyro);
-//			Thread angleCorrectThread = new Thread(angleCorrect);
-//			angleCorrectThread.start();
 //			
 //			
 //			Thread lsCorrectThread = new Thread(lsCorrectorPoller);

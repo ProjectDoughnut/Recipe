@@ -43,7 +43,7 @@ public class Navigation extends Thread{
 	public static boolean tunnelUp;
 
 	private ArrayList<double[]> _coordsList;
-	private boolean isNavigating;
+	private boolean navigating;
 	private boolean selfCorrecting = false;
 
 
@@ -62,12 +62,10 @@ public class Navigation extends Thread{
 		this.WHEEL_RAD = WHEEL_RAD;
 		this.WHEEL_BASE = WHEEL_BASE;
 		this.TILE_SIZE = tileSize;
-		this.isNavigating = false;
+		this.navigating = false;
 		this._coordsList = new ArrayList<double[]>();
 		this.running = true;
-
 	}
-
 
 	/**
 	 * Adds the navigation points to the _coordList
@@ -146,10 +144,9 @@ public class Navigation extends Thread{
 		// while loop is used in case of collision override
 		leftMotor.setSpeed(FORWARD_SPEED);
 		rightMotor.setSpeed(FORWARD_SPEED);
-		this.isNavigating = true;
+		this.navigating = true;
 		leftMotor.forward();
 		rightMotor.forward();
-		TextLCD lcd = LocalEV3.get().getTextLCD();
 
 		Sound.twoBeeps();
 		// @todo might consider using rotate function for fix amount of distance using the .rotate instead
@@ -174,6 +171,7 @@ public class Navigation extends Thread{
 			if (lock != null) {
 				leftMotor.stop(true);
 				rightMotor.stop(false);
+				this.navigating = false;
 				synchronized(lock) {
 					try {
 						lock.wait();
@@ -204,7 +202,7 @@ public class Navigation extends Thread{
 
 		leftMotor.stop(true);
 		rightMotor.stop(false);
-		this.isNavigating = false;
+		this.navigating = false;
 		Sound.beepSequence();
 		return true;
 	}
@@ -241,10 +239,10 @@ public class Navigation extends Thread{
 
 		leftMotor.setSpeed(ROTATE_SPEED);
 		rightMotor.setSpeed(ROTATE_SPEED);
-		this.isNavigating = true;
+		this.navigating = true;
 		leftMotor.rotate(convertAngle(WHEEL_RAD, WHEEL_BASE, deltaTheta), true);
 		rightMotor.rotate(-convertAngle(WHEEL_RAD, WHEEL_BASE, deltaTheta), false);
-		this.isNavigating = false;
+		this.navigating = false;
 	}
 
 
@@ -271,9 +269,8 @@ public class Navigation extends Thread{
 	}
 
 
-
-	boolean isNavigating() {
-		return isNavigating;
+	public boolean isNavigating() {
+		return navigating;
 	}
 
 	public boolean isRunning() {
@@ -526,8 +523,7 @@ public class Navigation extends Thread{
 		}
 
 	}
-
-
+	
 	public void adjustTheta(float a) {
 		odometer.setTheta(a);
 	}
