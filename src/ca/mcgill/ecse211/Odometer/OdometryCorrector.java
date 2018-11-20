@@ -4,6 +4,7 @@ import ca.mcgill.ecse211.Light.TwoLightController;
 import ca.mcgill.ecse211.Light.LightLocalizer;
 import ca.mcgill.ecse211.Main.Main;
 import ca.mcgill.ecse211.Main.Navigation;
+import lejos.hardware.Sound;
 
 /**
  * 
@@ -28,18 +29,18 @@ public class OdometryCorrector implements TwoLightController {
 
 	public static float firstReading = -1;
 
-	private static final float lightThreshold = 20.0f;
-	private static final double sensorDistance = 10.0; //in cm, 4.5inches
-	private static final float ERROR_THRESHOLD = 5.0f;
+	private static final float lightThreshold = 30.0f;
+	private static final double sensorDistance = 12.3; 
+	private static final float ERROR_THRESHOLD = 10.0f;
 
-	private static final int MIN_CORRECTION_FILTER = 0;
+	private static final int MIN_CORRECTION_FILTER = 1;
 	private static final int MAX_CORRECTION_FILTER = 40;
 
 	public static final double TILE_SIZE = Main.TILE_SIZE;
 	public static final double HALF_TILE_SIZE = Main.TILE_SIZE/2;
 
-	public enum CorrectionState{DETECTING, CORRECTING, END};
-	public CorrectionState state = CorrectionState.DETECTING;
+	public enum CorrectionState{DETECTING, CORRECTING_1, CORRECTING_2, END};
+	public static CorrectionState state = CorrectionState.DETECTING;
 
 
 	public OdometryCorrector(Navigation nav) {
@@ -77,12 +78,14 @@ public class OdometryCorrector implements TwoLightController {
 		case DETECTING:
 			//Set the first reading value
 			if (firstReading == -1) { 
-				firstReading = (leftLS+rightLS)/2;
+				firstReading = (leftLS + rightLS)/2;
 			}
 			
 			// make sure the navigation is navigating and not turning
 			// if turning, we dont want the robot to detect the line and try to correct
 			if (!nav.isNavigating()) {
+				lineDetected = 0;
+				correctionFilter = 0;
 				return;
 			}
 			
@@ -111,11 +114,10 @@ public class OdometryCorrector implements TwoLightController {
 					}
 					Object lock = new Object();
 					Navigation.lock = lock;
-					while(odometer.leftMotor.isMoving() || odometer.rightMotor.isMoving());
-					odometer.leftMotor.flt(false);
-					odometer.rightMotor.backward();
-					this.state = CorrectionState.CORRECTING;
+					while(nav.isNavigating());
+					this.state = CorrectionState.CORRECTING_1;
 				}
+				return;
 			}
 
 			if (detectLine(leftLS)) {
@@ -131,21 +133,48 @@ public class OdometryCorrector implements TwoLightController {
 					}
 					Object lock = new Object();
 					Navigation.lock = lock;
-					while(odometer.leftMotor.isMoving() || odometer.rightMotor.isMoving());
-					odometer.rightMotor.flt(false);
-					odometer.leftMotor.backward();
-					this.state = CorrectionState.CORRECTING;
+					while(nav.isNavigating());
+					this.state = CorrectionState.CORRECTING_1;
+				}
+				return;
+			}
+			break;
+			
+		case CORRECTING_1:
+			odometer.leftMotor.setSpeed(60);
+			odometer.rightMotor.setSpeed(60);
+			if (lineDetected == 1) {
+				odometer.rightMotor.backward();
+				odometer.leftMotor.backward();
+				if (detectLine(leftLS)) {
+					odometer.leftMotor.stop(true);
+					odometer.rightMotor.stop(false);
+					this.state = CorrectionState.CORRECTING_2;
+					
+				}
+			} else if (lineDetected == -1) {
+				odometer.leftMotor.backward();
+				odometer.rightMotor.backward();
+				if (detectLine(rightLS)) {
+					odometer.leftMotor.stop(true);
+					odometer.rightMotor.stop(false);
+					this.state = CorrectionState.CORRECTING_2;
 				}
 			}
 			break;
-		case CORRECTING:
+		case CORRECTING_2:
 			if (lineDetected == 1) {
+				odometer.leftMotor.backward();
+				odometer.rightMotor.forward();
 				if (detectLine(rightLS)) {
 					odometer.leftMotor.stop(true);
 					odometer.rightMotor.stop(false);
 					this.state = CorrectionState.END;
+					
 				}
 			} else if (lineDetected == -1) {
+				odometer.rightMotor.backward();
+				odometer.leftMotor.forward();
 				if (detectLine(leftLS)) {
 					odometer.leftMotor.stop(true);
 					odometer.rightMotor.stop(false);
@@ -154,12 +183,6 @@ public class OdometryCorrector implements TwoLightController {
 			}
 			break;
 		case END:
-			// reset the filter
-			this.correctionFilter = 0;
-			// reset state of the detection
-			this.lineDetected = 0;
-
-
 			// do odometry correction
 			double[] xyt = odometer.getXYT();
 
@@ -176,16 +199,16 @@ public class OdometryCorrector implements TwoLightController {
 			lineX = xyt[0] - deltaX;
 			lineY = xyt[1] - deltaY;
 
-			errorX = Math.round(lineX/TILE_SIZE) - lineX ;
+			errorX = Math.round(lineX/TILE_SIZE)*TILE_SIZE - lineX ;
 
-			errorY = Math.round(lineY/TILE_SIZE) - lineY;
+			errorY = Math.round(lineY/TILE_SIZE)*TILE_SIZE - lineY;
 
 
-			if (Math.abs(errorX) <= ERROR_THRESHOLD && errorX <= errorY) {
+			if (Math.abs(errorX) <= ERROR_THRESHOLD) {
 				// probably x line
 				odometer.update(errorX, 0, 0);
-
-			} else if (Math.abs(errorY) <= ERROR_THRESHOLD) {
+			} 
+			if (Math.abs(errorY) <= ERROR_THRESHOLD) {
 				// probably y line
 				odometer.update(0, errorY, 0);
 			}
@@ -195,17 +218,23 @@ public class OdometryCorrector implements TwoLightController {
 			synchronized(lock) {
 				lock.notifyAll();
 			}
+			// reset the filter
+			this.correctionFilter = 0;
+			// reset state of the detection
+			this.lineDetected = 0;
 
 			this.state = CorrectionState.DETECTING;
 
 			try {
 				// arbitrary delay so that we don't detect 
 				// the line that we just correct for
-				Thread.sleep(200);
+				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			
+			break;
 
 		}
 
