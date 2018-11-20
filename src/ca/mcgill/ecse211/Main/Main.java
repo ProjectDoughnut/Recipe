@@ -164,7 +164,7 @@ public class Main {
 
 			if (buttonChoice == Button.ID_LEFT) {
 				
-				RingCollection ringCollector = new RingCollection(odo, nav, clawServo, tunnel, tree, island, WHEEL_RAD, sensorDistance);
+				RingCollection ringCollector = new RingCollection(odo, nav, clawServo,new float[] {0,0}, tunnel, tree, island, WHEEL_RAD);
 				//Set which position its gonna be in: depending on where the tree is located
 //				clawServo.setSpeed(45);
 //				leftMotor.setSpeed(80);
@@ -310,11 +310,11 @@ public class Main {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
+			float[] originCoordinate = paths[paths.length -1];
 			
 			// start ring collection thread
 			
-			RingCollection ringCollector = new RingCollection(odo, nav, clawServo, tunnel, tree, island, WHEEL_RAD, sensorDistance);
+			RingCollection ringCollector = new RingCollection(odo, nav, clawServo, originCoordinate, tunnel, tree, island, WHEEL_RAD);
 
 			Thread ringCollectThread = new Thread(ringCollector);
 			ringCollectThread.start();
