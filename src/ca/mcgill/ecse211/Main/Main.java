@@ -35,6 +35,13 @@ import org.json.simple.parser.ParseException;
 import ca.mcgill.ecse211.WiFiClient.WifiConnection;
 import lejos.hardware.Button;
 
+/**
+* 
+* The starting point of the robot's program. All motors, sensors and other constants required are defined here.
+* Upon launch of the program the user will be prompted and based on the user's action a set of instructions will
+* be carried out by the robot
+*
+*/
 
 public class Main {
 
