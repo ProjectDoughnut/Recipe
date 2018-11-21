@@ -3,6 +3,7 @@ package ca.mcgill.ecse211.Main;
 import ca.mcgill.ecse211.Ultrasonic.*;
 
 
+
 import ca.mcgill.ecse211.Ultrasonic.USLocalizer.LocalizationType;
 import ca.mcgill.ecse211.Color.ColorClassifier;
 import ca.mcgill.ecse211.Color.ColorClassifier.RingColors;
@@ -80,7 +81,7 @@ public class Main {
 	private static float[] tree = new float[2];
 	public static float[][] pathToTree;
 	private static RingColors targetRing;
-	private static final String SERVER_IP = "192.168.2.67";
+	private static final String SERVER_IP = "192.168.2.2";
 	private static final int TEAM_NUMBER = 2;
 	// Enable/disable printing of debug info from the WiFi class
 	private static final boolean ENABLE_DEBUG_WIFI_PRINT = false;
@@ -127,12 +128,10 @@ public class Main {
 		// define light corrector
 
 		ColorClassifier CSLocal = new ColorClassifier(odo, nav, targetRing, false);
-		
 		double[] xyt;
 
 		ColorPoller csPoller = new ColorPoller(csValue, CSLocal);
-
-
+		
 		do {
 			// clear the display
 			lcd.clear();
@@ -364,6 +363,11 @@ public class Main {
 			
 			
 		}
+		
+
+
+		   
+		
 
 
 }

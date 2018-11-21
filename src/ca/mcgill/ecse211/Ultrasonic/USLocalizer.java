@@ -60,7 +60,7 @@ public class USLocalizer extends Thread implements UltrasonicController{
 	public static int WALL_ERROR = 5;
 	public static int TURN_ERROR = 0;
 
-	private static final int ROTATE_SPEED = 180;
+	private static final int ROTATE_SPEED = 200;
 	public static int ACCEL = 300;
 
 	public USLocalizer(Odometer odo) {

@@ -1,4 +1,4 @@
-package ca.mcgill.ecse211.Odometer;
+ package ca.mcgill.ecse211.Odometer;
 
 import ca.mcgill.ecse211.Gyro.AngleSampler;
 import ca.mcgill.ecse211.Light.LightController;
