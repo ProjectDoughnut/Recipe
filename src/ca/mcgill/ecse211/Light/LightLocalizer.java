@@ -30,7 +30,7 @@ public class LightLocalizer implements LightController{
 	public static float firstReading = -1;
 	private double lightThreshold = 35.0;
 	public float lightSensorIntensity;
-	private double sensorDistance = 11.3; //in cm, 4.5inches
+	private double sensorDistance = 12.3; //in cm, 4.5inches
 	private final double WHEEL_RAD = 2.2;
 	private double[] lineAngles, linePos;
 	private static final int ROTATE_SPEED = 150 ;
@@ -130,7 +130,7 @@ public class LightLocalizer implements LightController{
 			thetaY = Math.abs(lineAngles[2] - lineAngles[0]);
 			thetaX =  Math.abs(lineAngles[3] - lineAngles[1]);
 
-			correctedX = -sensorDistance*Math.cos(Math.toRadians(thetaY/2)) + 30.48;
+			correctedX = -sensorDistance*Math.cos(Math.toRadians(thetaY/2)) - 4.2 + 30.48;
 			correctedY = -sensorDistance*Math.cos(Math.toRadians(thetaX/2)) + 30.48;
 
 			//current theta value
@@ -139,7 +139,7 @@ public class LightLocalizer implements LightController{
 			deltaThetaY = (540 + (thetaY/2) - lineAngles[0]) % 360;
 
 			//Getting the average of the two values gave a more accurate result
-			deltaTheta = (deltaThetaX + deltaThetaY)/2.0;
+			deltaTheta = (deltaThetaX + deltaThetaY)/2.0 - 18 ; //some offset
 
 			odo.setXYT(correctedX, correctedY, -deltaTheta);	
 

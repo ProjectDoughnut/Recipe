@@ -29,9 +29,9 @@ public class OdometryCorrector implements TwoLightController {
 
 	public static float firstReading = -1;
 
-	private static final float lightThreshold = 30.0f;
+	private static final float lightThreshold = 45.0f;
 	private static final double sensorDistance = 12.3; 
-	private static final float ERROR_THRESHOLD = 10.0f;
+	private static final float ERROR_THRESHOLD = 15.0f;
 
 	private static final int MIN_CORRECTION_FILTER = 1;
 	private static final int MAX_CORRECTION_FILTER = 40;
@@ -68,7 +68,10 @@ public class OdometryCorrector implements TwoLightController {
 	}
 
 	public boolean detectLine(int value) {
-		return (100*Math.abs(value - firstReading)/firstReading) > lightThreshold;
+		if (value<10) {
+			return false;
+		}
+		return (100*-(value - firstReading)/firstReading) > lightThreshold;
 	}
 
 	@Override
@@ -116,8 +119,9 @@ public class OdometryCorrector implements TwoLightController {
 					Navigation.lock = lock;
 					while(nav.isNavigating());
 					this.state = CorrectionState.CORRECTING_1;
+					return;
 				}
-				return;
+
 			}
 
 			if (detectLine(leftLS)) {
@@ -129,17 +133,18 @@ public class OdometryCorrector implements TwoLightController {
 					if (correctionFilter < MIN_CORRECTION_FILTER) {
 						lineDetected = 0;
 						correctionFilter = 0;
+						this.state = CorrectionState.END;
 						return;
 					}
 					Object lock = new Object();
 					Navigation.lock = lock;
 					while(nav.isNavigating());
 					this.state = CorrectionState.CORRECTING_1;
-				}
-				return;
+					return;
+				}	
 			}
-			break;
 			
+			break;
 		case CORRECTING_1:
 			odometer.leftMotor.setSpeed(60);
 			odometer.rightMotor.setSpeed(60);
@@ -188,7 +193,7 @@ public class OdometryCorrector implements TwoLightController {
 
 
 			// set the angle to the closest one to a multiple of 90
-			float theta = Math.round(xyt[2]/90.0) * 90;
+			float theta = Math.round(xyt[2]/90.0) * 90 % 360;
 			odometer.setTheta(theta);
 
 
@@ -204,20 +209,22 @@ public class OdometryCorrector implements TwoLightController {
 			errorY = Math.round(lineY/TILE_SIZE)*TILE_SIZE - lineY;
 
 
-			if (Math.abs(errorX) <= ERROR_THRESHOLD) {
+			if (Math.abs(errorX) <= ERROR_THRESHOLD && (theta == 90 || theta == 270)) {
 				// probably x line
 				odometer.update(errorX, 0, 0);
-			} 
-			if (Math.abs(errorY) <= ERROR_THRESHOLD) {
+			} else if (Math.abs(errorY) <= ERROR_THRESHOLD) {
 				// probably y line
 				odometer.update(0, errorY, 0);
 			}
 
 			Object lock = Navigation.lock;
 			Navigation.lock = null;
-			synchronized(lock) {
-				lock.notifyAll();
+			if (lock != null) {
+				synchronized(lock) {
+					lock.notifyAll();
+				}
 			}
+
 			// reset the filter
 			this.correctionFilter = 0;
 			// reset state of the detection
