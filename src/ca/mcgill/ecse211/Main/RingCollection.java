@@ -3,6 +3,7 @@ package ca.mcgill.ecse211.Main;
 import ca.mcgill.ecse211.Color.ColorClassifier;
 import ca.mcgill.ecse211.Light.LightLocalizer;
 import ca.mcgill.ecse211.Odometer.Odometer;
+import ca.mcgill.ecse211.Odometer.OdometryCorrector;
 import ca.mcgill.ecse211.Ultrasonic.USLocalizer;
 import lejos.hardware.Sound;
 import lejos.hardware.motor.EV3MediumRegulatedMotor;
@@ -45,6 +46,8 @@ public class RingCollection extends Thread{
 	}
 	
 	public void run() {
+		
+		OdometryCorrector.running = false;
 		
 		//Lock the color thread until this thread begins
 
@@ -97,7 +100,7 @@ public class RingCollection extends Thread{
   				angle = 90;
   			}
   			
-  			angles[i] = angle;
+  			angles[i] = angle; 
   			
 //  			getRings();
   			// note that since only xOnRight or yOnRight
@@ -169,6 +172,8 @@ public class RingCollection extends Thread{
   				nav.syncTravelTo(coordinates[i][0], coordinates[i][1]);
   			}
   		}
+  		
+  		OdometryCorrector.running = true;
 	}
 	
 	public static boolean isIn(float[][] area, float[] point) {
@@ -183,9 +188,9 @@ public class RingCollection extends Thread{
 	 * This also runs under the assumption that the ring is already at the correct angle, facing the branch
 	 */
 	public void getRings() {
-		servo.setSpeed(30);
-		odo.leftMotor.setSpeed(80);
-		odo.rightMotor.setSpeed(80);
+		servo.setSpeed(40);
+		odo.leftMotor.setSpeed(100);
+		odo.rightMotor.setSpeed(100);
 		//Open claw
 		servo.rotate(90);
 		
@@ -194,11 +199,11 @@ public class RingCollection extends Thread{
 		odo.rightMotor.rotate(Navigation.convertDistance(WHEEL_RADIUS, toBranch), false);
 		
 		//Close claw
-		servo.rotate(-85);
+		servo.rotate(-90);
 		
 		//Move the robot backward a set amount: This should be tested multiple times to determine the ideal amount
-		odo.leftMotor.rotate(-Navigation.convertDistance(WHEEL_RADIUS, toBranch), true);
-		odo.rightMotor.rotate(-Navigation.convertDistance(WHEEL_RADIUS, toBranch), false);
+		odo.leftMotor.rotate(-Navigation.convertDistance(WHEEL_RADIUS, toBranch + 7), true);
+		odo.rightMotor.rotate(-Navigation.convertDistance(WHEEL_RADIUS, toBranch + 7), false);
 	}
 	
 

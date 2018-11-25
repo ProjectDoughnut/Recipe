@@ -23,8 +23,8 @@ public class Navigation extends Thread{
 	private EV3LargeRegulatedMotor leftMotor;
 	private EV3LargeRegulatedMotor rightMotor;
 
-	private static final int FORWARD_SPEED = 180;
-	private static final int ROTATE_SPEED = 130;
+	private static final int FORWARD_SPEED = 250;
+	private static final int ROTATE_SPEED = 150;
 
 	private final double WHEEL_RAD;
 	private final double WHEEL_BASE;

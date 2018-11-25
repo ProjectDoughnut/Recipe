@@ -360,6 +360,7 @@ public class Main {
 			RingCollection ringCollector = new RingCollection(odo, nav, clawServo, originCoordinate, tunnel, tree, island, WHEEL_RAD);
 
 			Thread ringCollectThread = new Thread(ringCollector);
+
 			ringCollectThread.start();
 			Thread colorThread = new Thread(csPoller);
 			colorThread.start();
@@ -367,14 +368,42 @@ public class Main {
 			
 			// wait for color thread to join (ided one ring)
 			try {
-				colorThread.join();
+				//colorThread.join();
+				ringCollectThread.join();
 				// EMERGENCY EXIT :)
-				System.exit(0);
+				//System.exit(0);
 			
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			
+			OdometryCorrector.running = true;
+			Sound.beep();
+			while(Button.waitForAnyPress() != Button.ID_ENTER);
+			
+			Thread odoCorrector2Thread = new Thread(odoCorrectorPoller);
+			odoCorrector2Thread.start();
+			
+			for (int i = paths.length-1; i>=0; i--) {
+				nav.travelTo(paths[i][0], paths[i][1]);
+			}
+			
+			nav.travelTo(cornerXY[0], cornerXY[1]);
+			
+
+			Thread navBackThread = new Thread(nav);
+			navBackThread.start();
+			
+			
+			try {
+				navBackThread.join();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			Sound.playNote(Sound.XYLOPHONE, 500, 500);
 			
 //			
 //			
