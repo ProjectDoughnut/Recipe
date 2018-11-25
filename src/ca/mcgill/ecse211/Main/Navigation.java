@@ -215,9 +215,10 @@ public class Navigation extends Thread{
 	 */
 	public boolean syncTravelTo(double navX, double navY) {
 		this.running = true;
-		boolean result = _travelTo(navX*TILE_SIZE, navY*TILE_SIZE, true);
+		
+		while(!_travelTo(navX*TILE_SIZE, navY*TILE_SIZE, true));
 		this.running = false;
-		return result;
+		return true;
 	}
 
 
