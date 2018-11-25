@@ -98,7 +98,7 @@ public class ColorClassifier implements ColorController{
 				Sound.twoBeeps();
 			}
 
-			this.running = false;
+			//this.running = false;
 			} 
 
 	}

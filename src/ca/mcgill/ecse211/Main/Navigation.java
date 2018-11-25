@@ -88,7 +88,7 @@ public class Navigation extends Thread{
 				break;
 			}
 			double[] coords = this._coordsList.remove(0);
-			Sound.beep();
+			//Sound.beep();
 			this._travelTo(coords[0], coords[1], false);
 
 			//			if (selfCorrecting) {

@@ -183,7 +183,7 @@ public class RingCollection extends Thread{
 	 * This also runs under the assumption that the ring is already at the correct angle, facing the branch
 	 */
 	public void getRings() {
-		servo.setSpeed(50);
+		servo.setSpeed(30);
 		odo.leftMotor.setSpeed(80);
 		odo.rightMotor.setSpeed(80);
 		//Open claw
@@ -194,7 +194,7 @@ public class RingCollection extends Thread{
 		odo.rightMotor.rotate(Navigation.convertDistance(WHEEL_RADIUS, toBranch), false);
 		
 		//Close claw
-		servo.rotate(-90);
+		servo.rotate(-85);
 		
 		//Move the robot backward a set amount: This should be tested multiple times to determine the ideal amount
 		odo.leftMotor.rotate(-Navigation.convertDistance(WHEEL_RADIUS, toBranch), true);

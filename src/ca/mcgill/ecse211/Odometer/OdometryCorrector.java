@@ -169,8 +169,8 @@ public class OdometryCorrector implements TwoLightController {
 			break;
 		case CORRECTING_2:
 			if (lineDetected == 1) {
-				odometer.leftMotor.backward();
-				odometer.rightMotor.forward();
+				odometer.leftMotor.forward();
+				odometer.rightMotor.backward();
 				if (detectLine(rightLS)) {
 					odometer.leftMotor.stop(true);
 					odometer.rightMotor.stop(false);
@@ -178,8 +178,8 @@ public class OdometryCorrector implements TwoLightController {
 					
 				}
 			} else if (lineDetected == -1) {
-				odometer.rightMotor.backward();
-				odometer.leftMotor.forward();
+				odometer.rightMotor.forward();
+				odometer.leftMotor.backward();
 				if (detectLine(leftLS)) {
 					odometer.leftMotor.stop(true);
 					odometer.rightMotor.stop(false);

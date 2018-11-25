@@ -37,6 +37,49 @@ import ca.mcgill.ecse211.WiFiClient.WifiConnection;
 import lejos.hardware.Button;
 
 
+/**
+ * 
+ * @author Binyuan Sun and Alexandra Livadas
+ *
+ * The starting point of the robot's program. All motors, sensors and other constants required are defined here.
+ * Upon launch of the program the user will be prompted and based on the user's action a set of instructions will
+ * be carried out by the robot. 
+ * 
+ * Description of code flow: 1. Robot takes in parameters from the server 2. Sets up all the 
+ * constructors, ultrasonic, light, odometer, navigation, etc 3. Ask for user input 4. Robot 
+ * sets USLocal to FALLING_EDGE method 5. UltrasonicPoller thread is atarted as well as the LightPoller
+ * thread 6. Odometer and OdometryCorrector threads are started in parallel 7. Robot starts ultrasonic
+ * localization in the USLocalizer class where method process() is called, Once ultrasonic localization ends,
+ * LightLocalizer class's process() method is called and the robot uses "lsSensor" on "lsPort" value to read 
+ * the black lines. The robot sweeps the lines by rotating 360 degrees and trigonometry is used to localize 
+ * the robot to the starting point 8. The code then checks which coordinates the robot is starting from. 
+ * The odometer reading is set accordingly 9. The pathing method in the Navigation class takes in the starting
+ * corner, tunnel and tree coordinates from what the server provided and calculates the path the robot needs
+ * to take and returns it in a two-dimentional float array. For further details on how the pathing method 
+ * works look at Software Documentation Version x section xyz 10. The navigation thread is started and then 
+ * joined with other threads, the robot starts travelling towards the tree 11. The odometryCorrector fixes
+ * the heading if the x and y errors are greater than (Bin help). The navigation thread is paused while
+ * the heading is corrected. For more details look at OdometryCorrector class. The nav thread resumes
+ * once the angle correction is finished 12. All of the coordinates except for the tree's are saved in an 
+ * array called originCoordinate 13. The RingCollection class takes in the originCoordinate which makes the robot 
+ * stop one tile away from the tree 14. The ColorPoller thread is started and then joined with the other threads. 
+ * The OdometryCorrector is paused when the ColorPoller thread is running. It resumes once 4 sides of the trees 
+ * are visited.
+ * 
+ * TO BE CONTINUED
+ * 
+ * Threads in use - We have a total of x (waiting for everything to be done)
+ * threads. 1 color poller thread for the color sensor, 1 light poller thread for the two
+ * threads that detect lines, 1 odometer thread, 1 odometry display thread,
+ * 1 ultrasonic poller thread and 1 odometry correction thread.
+ * We use 'lock's to pause our threads, then unlock it for it to continue running
+ * For efficiency we join threads after to. Threads also sleep for a period of time 
+ * in some classes for (BIN Help). 
+ * 
+ * Current number of lines of code: (update at the end), Code estimation: (update
+ * at the end) (number of semicolons).
+ */
+
 public class Main {
 
 	private static final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));
@@ -81,7 +124,7 @@ public class Main {
 	private static float[] tree = new float[2];
 	public static float[][] pathToTree;
 	private static RingColors targetRing;
-	private static final String SERVER_IP = "192.168.2.54";
+	private static final String SERVER_IP = "192.168.2.26";
 	private static final int TEAM_NUMBER = 2;
 	// Enable/disable printing of debug info from the WiFi class
 	private static final boolean ENABLE_DEBUG_WIFI_PRINT = false;
@@ -287,7 +330,7 @@ public class Main {
 				cornerXY[0] = 1;
 				cornerXY[1] = 7;
 			}
-			Sound.beep();
+
 			
 			// start the odo correction thread
 			OdometryCorrector odoCorrector = new OdometryCorrector(nav);
