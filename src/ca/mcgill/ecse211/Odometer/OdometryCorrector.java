@@ -17,7 +17,7 @@ public class OdometryCorrector implements TwoLightController {
 
 	private Odometer odometer;
 	private Navigation nav;
-	public static boolean running = true;
+	public boolean running = true;
 
 	/**
 	 * If lineDetected is 1, it means that the right sensor detected the line
@@ -74,11 +74,9 @@ public class OdometryCorrector implements TwoLightController {
 		return (100*-(value - firstReading)/firstReading) > lightThreshold;
 	}
 
-	@SuppressWarnings("static-access")
 	@Override
 	public void process(int leftLS, int rightLS) {
 
-		if(this.running) {
 		switch(this.state)  {
 		case DETECTING:
 			//Set the first reading value
@@ -148,8 +146,8 @@ public class OdometryCorrector implements TwoLightController {
 			
 			break;
 		case CORRECTING_1:
-			odometer.leftMotor.setSpeed(40);
-			odometer.rightMotor.setSpeed(40);
+			odometer.leftMotor.setSpeed(80);
+			odometer.rightMotor.setSpeed(80);
 			if (lineDetected == 1) {
 				odometer.rightMotor.backward();
 				odometer.leftMotor.backward();
@@ -245,7 +243,6 @@ public class OdometryCorrector implements TwoLightController {
 			
 			break;
 
-		}
 		}
 
 	}

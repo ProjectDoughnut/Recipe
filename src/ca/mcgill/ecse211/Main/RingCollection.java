@@ -3,7 +3,6 @@ package ca.mcgill.ecse211.Main;
 import ca.mcgill.ecse211.Color.ColorClassifier;
 import ca.mcgill.ecse211.Light.LightLocalizer;
 import ca.mcgill.ecse211.Odometer.Odometer;
-import ca.mcgill.ecse211.Odometer.OdometryCorrector;
 import ca.mcgill.ecse211.Ultrasonic.USLocalizer;
 import lejos.hardware.Sound;
 import lejos.hardware.motor.EV3MediumRegulatedMotor;
@@ -46,8 +45,6 @@ public class RingCollection extends Thread{
 	}
 	
 	public void run() {
-		
-		OdometryCorrector.running = false;
 		
 		//Lock the color thread until this thread begins
 
@@ -100,7 +97,7 @@ public class RingCollection extends Thread{
   				angle = 90;
   			}
   			
-  			angles[i] = angle; 
+  			angles[i] = angle;
   			
 //  			getRings();
   			// note that since only xOnRight or yOnRight
@@ -127,6 +124,7 @@ public class RingCollection extends Thread{
   		
   		for (int i = 0; i < 8; i++) {
   			if (!isIn(island, coordinates[i])) {
+  	  			Sound.beep();
   				coordinates[i] = null;
   			}
   		}
@@ -172,14 +170,20 @@ public class RingCollection extends Thread{
   				nav.syncTravelTo(coordinates[i][0], coordinates[i][1]);
   			}
   		}
-  		
-  		OdometryCorrector.running = true;
 	}
 	
-	public static boolean isIn(float[][] area, float[] point) {
-		boolean overlapX = area[1][0] - area[0][0] >= point[0] - area[0][0];
-		boolean overlapY = area[1][1] - area[0][1] >= point[1] - area[0][1];
+	public boolean isIn(float[][] area, float[] point) {
+		boolean overlapX = area[1][0] - area[0][0] >= point[0] - area[0][0] && point[0] - area[0][0] >= 0;
+		boolean overlapY = area[1][1] - area[0][1] >= point[1] - area[0][1] && point[1] - area[0][1] >= 0;
 		
+		// handles cases near the tunnel
+		if ((point[0] == tunnel[0][0] && point[1] == tunnel[0][1]) ||
+			(point[0] == tunnel[1][0] && point[1] == tunnel[1][1]) ||
+			(point[0] == tunnel[0][0] && point[1] == tunnel[1][1]) ||
+			(point[0] == tunnel[1][0] && point[1] == tunnel[0][1])
+		) {
+			return false;
+		}
 		return overlapX && overlapY;
 	}
 
@@ -202,8 +206,8 @@ public class RingCollection extends Thread{
 		servo.rotate(-90);
 		
 		//Move the robot backward a set amount: This should be tested multiple times to determine the ideal amount
-		odo.leftMotor.rotate(-Navigation.convertDistance(WHEEL_RADIUS, toBranch + 7), true);
-		odo.rightMotor.rotate(-Navigation.convertDistance(WHEEL_RADIUS, toBranch + 7), false);
+		odo.leftMotor.rotate(-Navigation.convertDistance(WHEEL_RADIUS, toBranch), true);
+		odo.rightMotor.rotate(-Navigation.convertDistance(WHEEL_RADIUS, toBranch), false);
 	}
 	
 

@@ -124,7 +124,7 @@ public class Main {
 	private static float[] tree = new float[2];
 	public static float[][] pathToTree;
 	private static RingColors targetRing;
-	private static final String SERVER_IP = "192.168.2.26";
+	private static final String SERVER_IP = "192.168.2.35";
 	private static final int TEAM_NUMBER = 2;
 	// Enable/disable printing of debug info from the WiFi class
 	private static final boolean ENABLE_DEBUG_WIFI_PRINT = false;
@@ -161,7 +161,7 @@ public class Main {
 		
 		LightLocalizer LSLocal = new LightLocalizer(odo, nav);
 		LightLocalizer.lock = USLocalizer.done;
-		LightPoller lsPoller = new LightPoller(lsValue, LSLocal);
+		LightPoller lsPoller = new LightPoller(lsValue2, LSLocal);
 	
 		
 		// define light corrector
@@ -214,14 +214,10 @@ public class Main {
 //				rightMotor.setSpeed(80);
 //				ringCollector.getRings();
 
-				//Pointing y or x:
-				Navigation.tunnelPointingX = false;
 				
 				//If x, is the tree further up or down:
 				//Navigation.tunnelUp = false;
 				
-				//If y, is the tree to the left or right:
-				Navigation.tunnelToLeft = false;
 				odo.setXYT(4*TILE_SIZE, 7*TILE_SIZE, 90);
 				
 				Thread ringCollectThread = new Thread(ringCollector);
@@ -357,6 +353,8 @@ public class Main {
 			
 			// start ring collection thread
 			
+			
+			
 			RingCollection ringCollector = new RingCollection(odo, nav, clawServo, originCoordinate, tunnel, tree, island, WHEEL_RAD);
 
 			Thread ringCollectThread = new Thread(ringCollector);
@@ -370,31 +368,22 @@ public class Main {
 			try {
 				//colorThread.join();
 				ringCollectThread.join();
-				// EMERGENCY EXIT :)
-				//System.exit(0);
-			
+				CSLocal.running = false;
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
-			OdometryCorrector.running = true;
 			Sound.beep();
-			while(Button.waitForAnyPress() != Button.ID_ENTER);
-			
-			Thread odoCorrector2Thread = new Thread(odoCorrectorPoller);
-			odoCorrector2Thread.start();
 			
 			for (int i = paths.length-1; i>=0; i--) {
 				nav.travelTo(paths[i][0], paths[i][1]);
 			}
 			
 			nav.travelTo(cornerXY[0], cornerXY[1]);
-			
 
 			Thread navBackThread = new Thread(nav);
 			navBackThread.start();
-			
 			
 			try {
 				navBackThread.join();
