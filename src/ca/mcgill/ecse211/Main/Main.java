@@ -438,8 +438,22 @@ public class Main {
 			island[1] = endIsland;
 			float[] tunnel_LL = {((Long) data.get("TNG_LL_x")).intValue(), ((Long) data.get("TNG_LL_y")).intValue()};
 			float[] tunnel_UR = {((Long) data.get("TNG_UR_x")).intValue(), ((Long) data.get("TNG_UR_y")).intValue()};
-			tunnel[0] = tunnel_LL;
-			tunnel[1] = tunnel_UR;
+			
+			if (endIsland[1] - startHome[1] > 0) {
+				// basic case
+				tunnel[0] = tunnel_LL;
+				tunnel[1] = tunnel_UR;
+			} else if(endHome[1] - startIsland[1] > 0) {
+				tunnel[0] = tunnel_UR;
+				tunnel[1] = tunnel_LL;
+			} else if (endIsland[0] - startHome[0]  > 0 ) {
+				tunnel[0] = new float[] {tunnel_LL[0], tunnel_UR[1]};
+				tunnel[1] = new float[] {tunnel_UR[0], tunnel_LL[0]};
+			} else if (endHome[0] - startIsland[0]  > 0) {
+				tunnel[1] = new float[] {tunnel_LL[0], tunnel_UR[1]};
+				tunnel[0] = new float[] {tunnel_UR[0], tunnel_LL[0]};
+			}
+			
 			tree[0] = ((Long) data.get("TG_x")).intValue(); 
 			tree[1] = ((Long) data.get("TG_y")).intValue();
 	    	  	
