@@ -44,10 +44,7 @@ public class Navigation extends Thread{
 
 
 	private volatile boolean running;
-	private double sensorDistance = 	11.3;
-	private double corrX;
-	private double ERROR_THRESHOLD = 5.0;
-	private double corrY;
+	
 
 
 	public Navigation(Odometer odo, EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor, 

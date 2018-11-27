@@ -12,7 +12,7 @@ public class TwoLightPoller extends Thread{
 	public int distance;
 	public int distance2;
 	
-	public int SLEEP_TIME = 20;
+	public int SLEEP_TIME = 25;
 
 	public volatile boolean running;
 
@@ -36,6 +36,8 @@ public class TwoLightPoller extends Thread{
 	 * @see java.lang.Thread#run()
 	 */
 	public void run() {
+		long updateStart, updateEnd;
+
 		while (cont.isRunning()) {
 			
 			if (cont.getLock() != null) {
@@ -49,6 +51,7 @@ public class TwoLightPoller extends Thread{
 					}
 				}
 			}
+			updateStart = System.currentTimeMillis();
 			
 			ls.fetchSample(lsData, 0); // acquire data
 			distance = (int)(lsData[0] * 100.0); // extract from buffer, cast to int
@@ -57,8 +60,10 @@ public class TwoLightPoller extends Thread{
 			distance2 = (int)(lsData2[0] * 100.0); // extract from buffer, cast to int
 			
 			cont.process(distance, distance2); // now take action depending on value
+			
+			updateEnd = System.currentTimeMillis();
 			try {
-				Thread.sleep(this.SLEEP_TIME);
+				Thread.sleep(this.SLEEP_TIME - (updateEnd - updateStart));
 			} catch (Exception e) {
 			} // Poor man's timed sampling
 		}

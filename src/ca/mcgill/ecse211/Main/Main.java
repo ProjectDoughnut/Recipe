@@ -87,8 +87,8 @@ public class Main {
 	private static final EV3MediumRegulatedMotor clawServo = new EV3MediumRegulatedMotor(LocalEV3.get().getPort("C"));
 
 	private static final Port usPort = LocalEV3.get().getPort("S3");
-	private static final Port lsPort2 = LocalEV3.get().getPort("S4");
 	private static final Port lsPort = LocalEV3.get().getPort("S2");
+	private static final Port lsPort2 = LocalEV3.get().getPort("S4");
 	private static final Port csPort = LocalEV3.get().getPort("S1");
 
 	//Setting up ultrasonic sensor
@@ -125,7 +125,7 @@ public class Main {
 	private static float[] tree = new float[2];
 	public static float[][] pathToTree;
 	private static RingColors targetRing;
-	private static final String SERVER_IP = "192.168.2.35";
+	private static final String SERVER_IP = "192.168.2.31";
 	private static final int TEAM_NUMBER = 2;
 	// Enable/disable printing of debug info from the WiFi class
 	private static final boolean ENABLE_DEBUG_WIFI_PRINT = false;

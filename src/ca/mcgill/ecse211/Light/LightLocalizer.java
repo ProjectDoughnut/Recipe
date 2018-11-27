@@ -55,16 +55,15 @@ public class LightLocalizer implements LightController{
 		switch(state) {
 		case INIT:
 
-			if (firstReading == -1) { //Set the first reading value
-				firstReading = value;
-				OdometryCorrector.firstReading = value;
-			}
-
 			//At this point, the robot will (ideally) be at 0-degrees
 			//Turning it 45 degrees will (ideally) turn it in the direction of (0,0)
 			//***Might want to change this to just 45???
 			nav.turnTo(odo.getXYT()[2], 45);
-
+			
+			if (firstReading == -1) { //Set the first reading value
+				firstReading = value;
+//				OdometryCorrector.firstReading = value;
+			}
 
 			odo.leftMotor.setSpeed(ROTATE_SPEED);
 			odo.rightMotor.setSpeed(ROTATE_SPEED);

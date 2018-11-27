@@ -29,11 +29,11 @@ public class OdometryCorrector implements TwoLightController {
 
 	public static float firstReading = -1;
 
-	private static final float lightThreshold = 45.0f;
+	private static final float lightThreshold = 46.0f;
 	private static final double sensorDistance = 12.3; 
 	private static final float ERROR_THRESHOLD = 15.0f;
 
-	private static final int MIN_CORRECTION_FILTER = 1;
+	private static final int MIN_CORRECTION_FILTER = 2;
 	private static final int MAX_CORRECTION_FILTER = 40;
 
 	public static final double TILE_SIZE = Main.TILE_SIZE;
@@ -191,7 +191,6 @@ public class OdometryCorrector implements TwoLightController {
 			// do odometry correction
 			double[] xyt = odometer.getXYT();
 
-
 			// set the angle to the closest one to a multiple of 90
 			float theta = Math.round(xyt[2]/90.0) * 90 % 360;
 			odometer.setTheta(theta);
@@ -211,9 +210,11 @@ public class OdometryCorrector implements TwoLightController {
 
 			if (Math.abs(errorX) <= ERROR_THRESHOLD && (theta == 90 || theta == 270)) {
 				// probably x line
+				Sound.beepSequence();
 				odometer.update(errorX, 0, 0);
 			} else if (Math.abs(errorY) <= ERROR_THRESHOLD) {
 				// probably y line
+				Sound.beepSequenceUp();
 				odometer.update(0, errorY, 0);
 			}
 
