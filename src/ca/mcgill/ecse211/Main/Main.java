@@ -94,26 +94,26 @@ public class Main {
 	//Setting up ultrasonic sensor
 	public static UARTSensor usSensor = new EV3UltrasonicSensor(usPort);
 	public static SampleProvider usValue = usSensor.getMode("Distance");
-	
+
 	//Setting up light sensor
 
 	public static UARTSensor lsSensor = new EV3ColorSensor(lsPort);
 	public static SampleProvider lsValue = lsSensor.getMode("Red");
-	
+
 	public static UARTSensor lsSensor2 = new EV3ColorSensor(lsPort2);
 	public static SampleProvider lsValue2 = lsSensor2.getMode("Red");
-	
+
 	public static EV3ColorSensor csSensor = new EV3ColorSensor(csPort);
 	public static SampleProvider csValue = csSensor.getRGBMode();
-	
+
 	private static final TextLCD lcd = LocalEV3.get().getTextLCD();
 
 	public static final double WHEEL_RAD = 2.2;
 	public static final double WHEEL_BASE = 12.2;
 	public static final double TILE_SIZE = 30.48;
 	public static final double sensorDistance = 11.3;
-	
-	
+
+
 	private static boolean red = false;
 	private static boolean green = false;
 	private static int corner;
@@ -139,35 +139,35 @@ public class Main {
 			}
 		};
 		exitThread.start();
-		
-	    
+
+
 		getWiFiParameters();
 		lcd.clear();
-	    
+
 		int buttonChoice;
 
 		//Setting up the odometer and display
-		
+
 		Odometer odo = Odometer.getOdometer(leftMotor, rightMotor, WHEEL_BASE, WHEEL_RAD);
 		Navigation nav = new Navigation(odo, leftMotor, rightMotor, WHEEL_RAD, WHEEL_BASE, TILE_SIZE);
 		Display display = new Display(lcd);
-		
+
 		//define ultrasound localizer
-		
+
 		USLocalizer USLocal = new USLocalizer(odo);
 		UltrasonicPoller usPoller = new UltrasonicPoller(usValue, USLocal);
-		
+
 		// define light localizer
-		
+
 		LightLocalizer LSLocal = new LightLocalizer(odo, nav);
 		LightLocalizer.lock = USLocalizer.done;
 		LightPoller lsPoller = new LightPoller(lsValue2, LSLocal);
-	
-		
+
+
 		// define light corrector
 
 		ColorClassifier CSLocal = new ColorClassifier(odo, nav, targetRing, false);
-		
+
 		double[] xyt;
 
 		ColorPoller csPoller = new ColorPoller(csValue, CSLocal);
@@ -191,35 +191,35 @@ public class Main {
 		if (buttonChoice == Button.ID_LEFT) { //US Localization has been selected
 			// clear the display
 			lcd.clear();
-		      // ask the user whether odometery correction should be run or not
-		      lcd.drawString("< Left | Right >", 0, 0);
-		      lcd.drawString("       |Localize", 0, 1);
-		      lcd.drawString("Get    | and    ", 0, 2);
-		      lcd.drawString("Rings  | Nav-   ", 0, 3);
-		      lcd.drawString("       | igate  ", 0, 4);
+			// ask the user whether odometery correction should be run or not
+			lcd.drawString("< Left | Right >", 0, 0);
+			lcd.drawString("       |Localize", 0, 1);
+			lcd.drawString("Get    | and    ", 0, 2);
+			lcd.drawString("Rings  | Nav-   ", 0, 3);
+			lcd.drawString("       | igate  ", 0, 4);
 
-		    buttonChoice = Button.waitForAnyPress(); // Record choice (left or right press)
-//			USLocal.setType(LocalizationType.FALLING_EDGE);
-		    Thread odoThread = new Thread(odo);
-		    odoThread.start();
+			buttonChoice = Button.waitForAnyPress(); // Record choice (left or right press)
+			//			USLocal.setType(LocalizationType.FALLING_EDGE);
+			Thread odoThread = new Thread(odo);
+			odoThread.start();
 			Thread displayThread = new Thread(display);
 			displayThread.start();
 
 			if (buttonChoice == Button.ID_LEFT) {
-				
+
 				RingCollection ringCollector = new RingCollection(odo, nav, clawServo,new float[] {0,0}, tunnel, tree, island, WHEEL_RAD);
 				//Set which position its gonna be in: depending on where the tree is located
-//				clawServo.setSpeed(45);
-//				leftMotor.setSpeed(80);
-//				rightMotor.setSpeed(80);
-//				ringCollector.getRings();
+				//				clawServo.setSpeed(45);
+				//				leftMotor.setSpeed(80);
+				//				rightMotor.setSpeed(80);
+				//				ringCollector.getRings();
 
-				
+
 				//If x, is the tree further up or down:
 				//Navigation.tunnelUp = false;
-				
+
 				odo.setXYT(4*TILE_SIZE, 7*TILE_SIZE, 90);
-				
+
 				Thread ringCollectThread = new Thread(ringCollector);
 				ringCollectThread.start();
 				Thread colorThread = new Thread(csPoller);
@@ -241,7 +241,7 @@ public class Main {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				
+
 				if (corner == 1) {
 					odo.setXYT(7*TILE_SIZE, 1*TILE_SIZE, 270);
 					cornerXY[0] = 7;
@@ -263,30 +263,30 @@ public class Main {
 				}
 				Sound.beep();
 				//pathToTree = Navigation.pathing(cornerCoord, home, island, tunnel, tree);
-				
-				
+
+
 				// start the odo correction thread
 				OdometryCorrector odoCorrector = new OdometryCorrector(nav);
 				TwoLightPoller odoCorrectorPoller = new TwoLightPoller(lsValue, lsValue2, odoCorrector);
 				Thread odoCorrectorThread = new Thread(odoCorrectorPoller);
 				odoCorrectorThread.start();
-				
+
 				// add coordinates of tunnel and tree here
-				
+
 				float[][] paths = Navigation.pathing(cornerXY, tunnel, tree);
 
 				for (float[] path: paths) {
 					nav.travelTo(path[0], path[1]);
 				}
-				   
+
 				Thread navThread = new Thread(nav);
 				navThread.start();
 			}
-			
-		
+
+
 		} else { 
-		    Thread odoThread = new Thread(odo);
-		    odoThread.start();
+			Thread odoThread = new Thread(odo);
+			odoThread.start();
 			Thread displayThread = new Thread(display);
 			displayThread.start();
 			USLocal.setType(LocalizationType.FALLING_EDGE);
@@ -305,7 +305,7 @@ public class Main {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
+
 
 			if (corner == 0) {
 				cornerXY[0] = 1;
@@ -327,22 +327,22 @@ public class Main {
 				cornerXY[1] = 7;
 			}
 
-			
+
 			// start the odo correction thread
 			OdometryCorrector odoCorrector = new OdometryCorrector(nav);
 			TwoLightPoller odoCorrectorPoller = new TwoLightPoller(lsValue, lsValue2, odoCorrector);
 			Thread odoCorrectorThread = new Thread(odoCorrectorPoller);
 			odoCorrectorThread.start();
-			
+
 			// add coordinates of tunnel and tree here
 			float[][] paths = Navigation.pathing(cornerXY, tunnel, tree);
 			for (float[] path: paths) {
 				nav.travelTo(path[0], path[1]);
 			}
-			   
+
 			Thread navThread = new Thread(nav);
 			navThread.start();
-			
+
 			try {
 				navThread.join();
 			} catch (InterruptedException e) {
@@ -350,11 +350,11 @@ public class Main {
 				e.printStackTrace();
 			}
 			float[] originCoordinate = paths[paths.length -1];
-			
+
 			// start ring collection thread
-			
-			
-			
+
+
+
 			RingCollection ringCollector = new RingCollection(odo, nav, clawServo, originCoordinate, tunnel, tree, island, WHEEL_RAD);
 
 			Thread ringCollectThread = new Thread(ringCollector);
@@ -362,8 +362,8 @@ public class Main {
 			ringCollectThread.start();
 			Thread colorThread = new Thread(csPoller);
 			colorThread.start();
-			
-			
+
+
 			// wait for color thread to join (ided one ring)
 			try {
 				//colorThread.join();
@@ -373,96 +373,96 @@ public class Main {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
+
 			Sound.beep();
-			
+
 			for (int i = paths.length-1; i>=0; i--) {
 				nav.travelTo(paths[i][0], paths[i][1]);
 			}
-			
+
 			nav.travelTo(cornerXY[0], cornerXY[1]);
 
 			Thread navBackThread = new Thread(nav);
 			navBackThread.start();
-			
+
 			try {
 				navBackThread.join();
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
+
 			Sound.playNote(Sound.XYLOPHONE, 500, 500);
-			
-//			
-//			
-//			Thread lsCorrectThread = new Thread(lsCorrectorPoller);
-//			lsCorrectThread.start();
-			
-			
+
+			//			
+			//			
+			//			Thread lsCorrectThread = new Thread(lsCorrectorPoller);
+			//			lsCorrectThread.start();
+
+
 		}
 
 
-}
-	
+	}
+
 	public static void getWiFiParameters() {
-		 // Initialize WifiConnection class
-	    WifiConnection conn = new WifiConnection(SERVER_IP, TEAM_NUMBER, ENABLE_DEBUG_WIFI_PRINT);
+		// Initialize WifiConnection class
+		WifiConnection conn = new WifiConnection(SERVER_IP, TEAM_NUMBER, ENABLE_DEBUG_WIFI_PRINT);
 
-	    // Connect to server and get the data, catching any errors that might occur
-	    try {
-	      /*
-	       * getData() will connect to the server and wait until the user/TA presses the "Start" button
-	       * in the GUI on their laptop with the data filled in. Once it's waiting, you can kill it by
-	       * pressing the upper left hand corner button (back/escape) on the EV3. getData() will throw
-	       * exceptions if it can't connect to the server (e.g. wrong IP address, server not running on
-	       * laptop, not connected to WiFi router, etc.). It will also throw an exception if it connects
-	       * but receives corrupted data or a message from the server saying something went wrong. For
-	       * example, if TEAM_NUMBER is set to 1 above but the server expects teams 17 and 5, this robot
-	       * will receive a message saying an invalid team number was specified and getData() will throw
-	       * an exception letting you know.
-	       */
-	      Map data = conn.getData();
+		// Connect to server and get the data, catching any errors that might occur
+		try {
+			/*
+			 * getData() will connect to the server and wait until the user/TA presses the "Start" button
+			 * in the GUI on their laptop with the data filled in. Once it's waiting, you can kill it by
+			 * pressing the upper left hand corner button (back/escape) on the EV3. getData() will throw
+			 * exceptions if it can't connect to the server (e.g. wrong IP address, server not running on
+			 * laptop, not connected to WiFi router, etc.). It will also throw an exception if it connects
+			 * but receives corrupted data or a message from the server saying something went wrong. For
+			 * example, if TEAM_NUMBER is set to 1 above but the server expects teams 17 and 5, this robot
+			 * will receive a message saying an invalid team number was specified and getData() will throw
+			 * an exception letting you know.
+			 */
+			Map data = conn.getData();
 
-	      int greenTeam = ((Long) data.get("GreenTeam")).intValue();
-	      if (greenTeam == TEAM_NUMBER) {
-	    	  	green = true;
-	    	  	corner = ((Long) data.get("GreenCorner")).intValue();
-			float[] startHome = {((Long) data.get("Green_LL_x")).intValue(), ((Long) data.get("Green_LL_y")).intValue()};
-			float[] endHome = {((Long) data.get("Green_UR_x")).intValue(), ((Long) data.get("Green_UR_y")).intValue()};
-			home[0] = startHome;
-			home[1] = endHome;
-			float[] startIsland = {((Long) data.get("Island_LL_x")).intValue(), ((Long) data.get("Island_LL_y")).intValue()};
-			float[] endIsland = {((Long) data.get("Island_UR_x")).intValue(), ((Long) data.get("Island_UR_y")).intValue()};
-			island[0] = startIsland;
-			island[1] = endIsland;
-			float[] tunnel_LL = {((Long) data.get("TNG_LL_x")).intValue(), ((Long) data.get("TNG_LL_y")).intValue()};
-			float[] tunnel_UR = {((Long) data.get("TNG_UR_x")).intValue(), ((Long) data.get("TNG_UR_y")).intValue()};
-			
-			if (endIsland[1] - startHome[1] > 0) {
-				// basic case
-				tunnel[0] = tunnel_LL;
-				tunnel[1] = tunnel_UR;
-			} else if(endHome[1] - startIsland[1] > 0) {
-				tunnel[0] = tunnel_UR;
-				tunnel[1] = tunnel_LL;
-			} else if (endIsland[0] - startHome[0]  > 0 ) {
-				tunnel[0] = new float[] {tunnel_LL[0], tunnel_UR[1]};
-				tunnel[1] = new float[] {tunnel_UR[0], tunnel_LL[0]};
-			} else if (endHome[0] - startIsland[0]  > 0) {
-				tunnel[1] = new float[] {tunnel_LL[0], tunnel_UR[1]};
-				tunnel[0] = new float[] {tunnel_UR[0], tunnel_LL[0]};
+			int greenTeam = ((Long) data.get("GreenTeam")).intValue();
+			if (greenTeam == TEAM_NUMBER) {
+				green = true;
+				corner = ((Long) data.get("GreenCorner")).intValue();
+				float[] startHome = {((Long) data.get("Green_LL_x")).intValue(), ((Long) data.get("Green_LL_y")).intValue()};
+				float[] endHome = {((Long) data.get("Green_UR_x")).intValue(), ((Long) data.get("Green_UR_y")).intValue()};
+				home[0] = startHome;
+				home[1] = endHome;
+				float[] startIsland = {((Long) data.get("Island_LL_x")).intValue(), ((Long) data.get("Island_LL_y")).intValue()};
+				float[] endIsland = {((Long) data.get("Island_UR_x")).intValue(), ((Long) data.get("Island_UR_y")).intValue()};
+				island[0] = startIsland;
+				island[1] = endIsland;
+				float[] tunnel_LL = {((Long) data.get("TNG_LL_x")).intValue(), ((Long) data.get("TNG_LL_y")).intValue()};
+				float[] tunnel_UR = {((Long) data.get("TNG_UR_x")).intValue(), ((Long) data.get("TNG_UR_y")).intValue()};
+
+				if (startIsland[1] - endHome[1] > 0) {
+					// basic case
+					tunnel[0] = tunnel_LL;
+					tunnel[1] = tunnel_UR;
+				} else if(startHome[1] - endIsland[1] > 0) {
+					tunnel[0] = tunnel_UR;
+					tunnel[1] = tunnel_LL;
+				} else if (endIsland[0] - startHome[0]  > 0 ) {
+					tunnel[0] = new float[] {tunnel_LL[0], tunnel_UR[1]};
+					tunnel[1] = new float[] {tunnel_UR[0], tunnel_LL[1]};
+				} else if (endHome[0] - startIsland[0]  > 0) {
+					tunnel[1] = new float[] {tunnel_LL[0], tunnel_UR[1]};
+					tunnel[0] = new float[] {tunnel_UR[0], tunnel_LL[1]};
+				}
+
+				tree[0] = ((Long) data.get("TG_x")).intValue(); 
+				tree[1] = ((Long) data.get("TG_y")).intValue();
+
 			}
-			
-			tree[0] = ((Long) data.get("TG_x")).intValue(); 
-			tree[1] = ((Long) data.get("TG_y")).intValue();
-	    	  	
-	      }
 
 
-	    } catch (Exception e) {
-	      System.err.println("Error: " + e.getMessage());
-	    }
-	    
+		} catch (Exception e) {
+			System.err.println("Error: " + e.getMessage());
+		}
+
 	}
 }

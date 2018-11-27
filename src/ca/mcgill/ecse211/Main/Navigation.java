@@ -310,7 +310,7 @@ public class Navigation extends Thread{
 
 			// if the position of the tree is less far than the one of the tunnel (tunnel overlap with terrain)
 			// we will get around it instead
-			if (Math.abs(tree[0] - tunnel[0][0]) < Math.abs(tunnel[1][0]-tunnel[0][0])) {
+			if (Math.abs(tree[0] - tunnel[0][0]) <= Math.abs(tunnel[1][0]-tunnel[0][0])) {
 				// go one step farther than the tunnel
 				float tunnelXpp = tunnel[1][0]+xOnRight*1;
 
@@ -337,33 +337,33 @@ public class Navigation extends Thread{
 					xOnRight = 0;
 				}
 
-			} else if (tree[0] == tunnel[0][0] || tree[0] == tunnel[1][0]) {
-				// go one step farther than the tunnel
-				float tunnelXpp = tunnel[1][0]+xOnRight*1;
+			} else if (tree[1] == tunnel[0][1] || tree[0] == tunnel[1][1]) {
+  				// go one step farther than the tunnel
+  				float tunnelXpp = tunnel[1][0]+xOnRight*1;
 
-				paths.add(new float[]{tunnelXpp, (tunnel[0][1] + tunnel[1][1])/2});
+  				paths.add(new float[]{tunnelXpp, (tunnel[0][1] + tunnel[1][1])/2});
 
-				yOnRight = -xOnRight;
-				xOnRight = 0;
+  				yOnRight = -xOnRight;
+  				xOnRight = 0;
 
-				if (tree[1] <= tunnel[0][1] ^ yOnRight == 1) {
-					float tmp = tunnel[1][1]+1*yOnRight;
-					paths.add(new float[]{tunnelXpp, tmp});
-					xOnRight = yOnRight;
-					yOnRight = 0;
-					paths.add(new float[]{tree[0], tmp});
-					yOnRight = -xOnRight;
-					xOnRight = 0;
-				} else {
-					float tmp = tunnel[0][1]-1*yOnRight;
-					paths.add(new float[]{tunnelXpp, tmp});
-					xOnRight = -yOnRight;
-					yOnRight = 0;
-					paths.add(new float[]{tree[0], tmp});
-					yOnRight = xOnRight;
-					xOnRight = 0;
-				}
-			} else {
+  				if (tree[1] == tunnel[0][1]) {
+  					float tmp = tunnel[1][1]+1*yOnRight;
+  					paths.add(new float[]{tunnelXpp, tmp});
+  					xOnRight = yOnRight;
+  					yOnRight = 0;
+  					paths.add(new float[]{tree[0], tmp});
+  					yOnRight = -xOnRight;
+  					xOnRight = 0;
+  				} else {
+  					float tmp = tunnel[0][1]-1*yOnRight;
+  					paths.add(new float[]{tunnelXpp, tmp});
+  					xOnRight = -yOnRight;
+  					yOnRight = 0;
+  					paths.add(new float[]{tree[0], tmp});
+  					yOnRight = xOnRight;
+  					xOnRight = 0;
+  				}
+  			} else {
 				paths.add(new float[]{tree[0], (tunnel[0][1] + tunnel[1][1])/2});
 				yOnRight = -xOnRight;
 				xOnRight = 0;
@@ -378,7 +378,7 @@ public class Navigation extends Thread{
 
 		} else {
 			paths.add(new float[]{((tunnel[0][0] + tunnel[1][0])/2), corner[1]});
-			if (Math.abs(tree[1] - tunnel[0][1]) < Math.abs(tunnel[1][1]-tunnel[0][1])) {
+			if (Math.abs(tree[1] - tunnel[0][1]) <= Math.abs(tunnel[1][1]-tunnel[0][1])) {
 				float tunnelYpp = tunnel[1][1] +yOnRight*1;
 				paths.add(new float[]{(tunnel[0][0] + tunnel[1][0])/2, tunnelYpp});
 				xOnRight = -yOnRight;
@@ -402,32 +402,32 @@ public class Navigation extends Thread{
 					xOnRight = -yOnRight;
 					yOnRight = 0;
 				}
-			} else if (tree[1] == tunnel[0][1] || tree[1] == tunnel[1][1]) {
-				// if the tree is exactly on the y line
-				float tunnelYpp = tunnel[1][1] +yOnRight*1;
-				paths.add(new float[]{(tunnel[0][0] + tunnel[1][0])/2, tunnelYpp});
-				xOnRight = -yOnRight;
-				yOnRight = 0;
-				if (tree[0] <= tunnel[1][0] ^ xOnRight == 1) {
-					float tmp = tunnel[0][0]+1*xOnRight;
-					paths.add(new float[]{tmp, tunnelYpp});
-					yOnRight = -xOnRight;
-					xOnRight = 0;
-					paths.add(new float[]{tmp, tree[1]});
-					xOnRight = yOnRight;
-					yOnRight = 0;
+			} else if (tree[0] == tunnel[0][0] || tree[0] == tunnel[1][0]) {
+  				// if the tree is exactly on the 
+  				float tunnelYpp = tunnel[1][1] +yOnRight*1;
+  				paths.add(new float[]{(tunnel[0][0] + tunnel[1][0])/2, tunnelYpp});
+  				xOnRight = -yOnRight;
+  				yOnRight = 0;
+  				if (tree[0] == tunnel[1][0]) {
+  					float tmp = tunnel[0][0]+1*xOnRight;
+  					paths.add(new float[]{tmp, tunnelYpp});
+  					yOnRight = -xOnRight;
+  					xOnRight = 0;
+  					paths.add(new float[]{tmp, tree[1]});
+  					xOnRight = yOnRight;
+  					yOnRight = 0;
 
-				} else {
-					float tmp = tunnel[1][0]-1*xOnRight;
-					paths.add(new float[]{tmp, tunnelYpp});
-					yOnRight = xOnRight;
-					xOnRight = 0;
-					paths.add(new float[]{tmp, tree[1]});
-					xOnRight = -yOnRight;
-					yOnRight = 0;
-				}
+  				} else {
+  					float tmp = tunnel[1][0]-1*xOnRight;
+  					paths.add(new float[]{tmp, tunnelYpp});
+  					yOnRight = xOnRight;
+  					xOnRight = 0;
+  					paths.add(new float[]{tmp, tree[1]});
+  					xOnRight = -yOnRight;
+  					yOnRight = 0;
+  				}
 
-			} else {
+  			} else {
 				paths.add(new float[]{(tunnel[0][0] + tunnel[1][0])/2, tree[1]});
 
 			}
