@@ -113,6 +113,7 @@ public class Main {
 	public static final double TILE_SIZE = 30.48;
 	public static final double sensorDistance = 11.3;
 
+	public static final float[][] gameArea = {{1,1}, {7,7}};
 
 	private static boolean red = false;
 	private static boolean green = false;
@@ -432,8 +433,34 @@ public class Main {
 				float[] endHome = {((Long) data.get("Green_UR_x")).intValue(), ((Long) data.get("Green_UR_y")).intValue()};
 				home[0] = startHome;
 				home[1] = endHome;
-				float[] startIsland = {((Long) data.get("Island_LL_x")).intValue(), ((Long) data.get("Island_LL_y")).intValue()};
+				
+				float[] startIsland = {((Long) data.get("Island_LL_x")).intValue() , ((Long) data.get("Island_LL_y")).intValue()};
 				float[] endIsland = {((Long) data.get("Island_UR_x")).intValue(), ((Long) data.get("Island_UR_y")).intValue()};
+				
+				if (startIsland[0] > gameArea[1][0]) {
+					startIsland[0] = gameArea[1][0];
+				} else if (startIsland[0] < gameArea[0][0]) {
+					startIsland[0] = gameArea[0][0];
+				}
+				
+				if (startIsland[1] > gameArea[1][1]) {
+					startIsland[1] = gameArea[1][1];
+				} else if (startIsland[1] < gameArea[0][1]) {
+					startIsland[1] = gameArea[0][1];
+				}				
+				
+				if (endIsland[0] > gameArea[1][0]) {
+					endIsland[0] = gameArea[1][0];
+				} else if (endIsland[0] < gameArea[0][0]) {
+					endIsland[0] = gameArea[0][0];
+				}
+				
+				if (endIsland[0] > gameArea[1][0]) {
+					endIsland[0] = gameArea[1][0];
+				} else if (endIsland[0] < gameArea[0][0]) {
+					endIsland[0] = gameArea[0][0];
+				}
+				
 				island[0] = startIsland;
 				island[1] = endIsland;
 				float[] tunnel_LL = {((Long) data.get("TNG_LL_x")).intValue(), ((Long) data.get("TNG_LL_y")).intValue()};
