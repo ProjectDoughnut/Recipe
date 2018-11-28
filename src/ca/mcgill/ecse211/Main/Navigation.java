@@ -22,7 +22,7 @@ public class Navigation extends Thread{
 	private EV3LargeRegulatedMotor leftMotor;
 	private EV3LargeRegulatedMotor rightMotor;
 
-	private static final int FORWARD_SPEED = 200;
+	private static final int FORWARD_SPEED = 220;
 	private static final int ROTATE_SPEED = 150;
 
 	private final double WHEEL_RAD;
@@ -95,6 +95,7 @@ public class Navigation extends Thread{
 			//			}
 
 		}
+		
 		this.running = false;
 	}
 
@@ -130,6 +131,12 @@ public class Navigation extends Thread{
 
 		// turn to the correct direction
 		this._turnTo(theta, deltaTheta);
+		try {
+			Thread.sleep(20);
+		} catch (InterruptedException e) {
+
+			e.printStackTrace();
+		}
 		// move until destination is reached
 		// while loop is used in case of collision override
 		leftMotor.setSpeed(FORWARD_SPEED);
@@ -191,6 +198,14 @@ public class Navigation extends Thread{
 		leftMotor.stop(true);
 		rightMotor.stop(false);
 		this.navigating = false;
+		
+		try {
+			Thread.sleep(20);
+		} catch (InterruptedException e) {
+
+			e.printStackTrace();
+		}
+		
 		return true;
 	}
 

@@ -112,7 +112,7 @@ public class Main {
 	public static final double TILE_SIZE = 30.48;
 	public static final double sensorDistance = 11.3;
 
-	public static final float[][] gameArea = {{1,1}, {7,7}};
+	public static final float[][] gameArea = {{1,1}, {14,8}};
 
 	private static int corner;
 	private static int[] cornerXY = new int[2];
@@ -122,7 +122,7 @@ public class Main {
 	private static float[] tree = new float[2];
 	public static float[][] pathToTree;
 	private static RingColors targetRing;
-	private static final String SERVER_IP = "192.168.2.45";
+	private static final String SERVER_IP = "192.168.43.254";
 	private static final int TEAM_NUMBER = 2;
 	// Enable/disable printing of debug info from the WiFi class
 	private static final boolean ENABLE_DEBUG_WIFI_PRINT = false;
@@ -176,116 +176,13 @@ public class Main {
 			lcd.clear();
 
 			// ask the user whether the motors should drive in a square or float
-			lcd.drawString("< Left | Right >", 0, 0);
-			lcd.drawString("       |        ", 0, 1);
-			lcd.drawString(" Test  |  Full  ", 0, 2);
-			lcd.drawString("       |  demo  ", 0, 3);
-			lcd.drawString("       |        ", 0, 4);
+
+			lcd.drawString("Press enter to start", 0, 3);
 
 			buttonChoice = Button.waitForAnyPress(); // Record choice (left or right press)
 
-		} while (buttonChoice != Button.ID_LEFT && buttonChoice != Button.ID_RIGHT);
+		} while (buttonChoice != Button.ID_ENTER);
 
-		if (buttonChoice == Button.ID_LEFT) { //US Localization has been selected
-			// clear the display
-			lcd.clear();
-			// ask the user whether odometery correction should be run or not
-			lcd.drawString("< Left | Right >", 0, 0);
-			lcd.drawString("       |Localize", 0, 1);
-			lcd.drawString("Get    | and    ", 0, 2);
-			lcd.drawString("Rings  | Nav-   ", 0, 3);
-			lcd.drawString("       | igate  ", 0, 4);
-
-			buttonChoice = Button.waitForAnyPress(); // Record choice (left or right press)
-			//			USLocal.setType(LocalizationType.FALLING_EDGE);
-			Thread odoThread = new Thread(odo);
-			odoThread.start();
-			Thread displayThread = new Thread(display);
-			displayThread.start();
-
-			if (buttonChoice == Button.ID_LEFT) {
-
-				RingCollection ringCollector = new RingCollection(odo, nav, clawServo,new float[] {0,0}, tunnel, tree, island, WHEEL_RAD);
-				//Set which position its gonna be in: depending on where the tree is located
-				//				clawServo.setSpeed(45);
-				//				leftMotor.setSpeed(80);
-				//				rightMotor.setSpeed(80);
-				//				ringCollector.getRings();
-
-
-				//If x, is the tree further up or down:
-				//Navigation.tunnelUp = false;
-
-				odo.setXYT(4*TILE_SIZE, 7*TILE_SIZE, 90);
-
-				Thread ringCollectThread = new Thread(ringCollector);
-				ringCollectThread.start();
-				Thread colorThread = new Thread(csPoller);
-				colorThread.start();
-
-			}
-			else if (buttonChoice == Button.ID_RIGHT) {
-				USLocal.setType(LocalizationType.FALLING_EDGE);
-				Thread usPollerThread = new Thread(usPoller);
-				usPollerThread.start();
-				Thread lsPollerThread = new Thread(lsPoller);
-				lsPollerThread.start();
-				//Navigate using wifi class and only along x, y lines
-
-				try {
-					usPollerThread.join();
-					lsPollerThread.join();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-
-				// three beeps
-
-				if (corner == 1) {
-					odo.setXYT(7*TILE_SIZE, 1*TILE_SIZE, 270);
-					cornerXY[0] = 7;
-					cornerXY[1] = 1;
-				}
-				else if (corner == 2) {
-					odo.setXYT(7*TILE_SIZE, 7*TILE_SIZE, 90);
-					cornerXY[0] = 7;
-					cornerXY[1] = 7;
-				}
-				else if (corner == 3) {
-					odo.setXYT(1*TILE_SIZE, 7*TILE_SIZE, 180);
-					cornerXY[0] = 1;
-					cornerXY[1] = 7;
-				}
-				else {
-					cornerXY[0] = 1;
-					cornerXY[1] = 1;
-				}
-				Sound.beep();
-				//pathToTree = Navigation.pathing(cornerCoord, home, island, tunnel, tree);
-
-
-				// start the odo correction thread
-				OdometryCorrector odoCorrector = new OdometryCorrector(nav);
-				TwoLightPoller odoCorrectorPoller = new TwoLightPoller(lsValue, lsValue2, odoCorrector);
-				Thread odoCorrectorThread = new Thread(odoCorrectorPoller);
-				odoCorrectorThread.start();
-
-				// add coordinates of tunnel and tree here
-
-				float[][] paths = Navigation.pathing(cornerXY, tunnel, tree);
-
-				for (float[] path: paths) {
-					nav.travelTo(path[0], path[1]);
-				}
-
-				Thread navThread = new Thread(nav);
-				navThread.start();
-			}
-
-
-		} else { 
 			Thread odoThread = new Thread(odo);
 			odoThread.start();
 			Thread displayThread = new Thread(display);
@@ -311,24 +208,24 @@ public class Main {
 			Sound.beep();
 			Sound.beep();
 
-			if (corner == 0) {
-				cornerXY[0] = 1;
-				cornerXY[1] = 1;
-			}
-			else if (corner == 1) {
-				odo.setXYT(7*TILE_SIZE, 1*TILE_SIZE, 270);
-				cornerXY[0] = 7;
+			if (corner == 1) {
+				odo.setXYT(14*TILE_SIZE, 1*TILE_SIZE, 270);
+				cornerXY[0] = 14;
 				cornerXY[1] = 1;
 			}
 			else if (corner == 2) {
-				odo.setXYT(7*TILE_SIZE, 7*TILE_SIZE, 90);
-				cornerXY[0] = 7;
-				cornerXY[1] = 7;
+				odo.setXYT(14*TILE_SIZE, 8*TILE_SIZE, 180);
+				cornerXY[0] = 14;
+				cornerXY[1] = 8;
 			}
 			else if (corner == 3) {
-				odo.setXYT(1*TILE_SIZE, 7*TILE_SIZE, 180);
+				odo.setXYT(1*TILE_SIZE, 8*TILE_SIZE, 90);
 				cornerXY[0] = 1;
-				cornerXY[1] = 7;
+				cornerXY[1] = 8;
+			}
+			else {
+				cornerXY[0] = 1;
+				cornerXY[1] = 1;
 			}
 
 
@@ -411,7 +308,6 @@ public class Main {
 
 			//			Sound.playNote(Sound.XYLOPHONE, 500, 500);
 
-		}
 
 
 	}
