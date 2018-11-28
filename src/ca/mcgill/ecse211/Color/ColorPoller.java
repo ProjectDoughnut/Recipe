@@ -55,6 +55,10 @@ public class ColorPoller extends Thread {
 					Math.pow(rgbValues[1], 2) + 
 					Math.pow(rgbValues[2], 2));
 			
+			if (unitRGB == 0) {
+				continue;
+			}
+			
 			rgbValues[0] /= unitRGB; // extract from buffer, cast to int
 			rgbValues[1] /= unitRGB; // extract from buffer, cast to int
 			rgbValues[2] /= unitRGB; // extract from buffer, cast to int

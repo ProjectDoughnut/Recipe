@@ -1,5 +1,7 @@
 package ca.mcgill.ecse211.Main;
 
+import java.util.Arrays;
+
 import ca.mcgill.ecse211.Color.ColorClassifier;
 import ca.mcgill.ecse211.Light.LightLocalizer;
 import ca.mcgill.ecse211.Odometer.Odometer;
@@ -118,17 +120,16 @@ public class RingCollection extends Thread{
   			xOnRight = -xOnRight;
 			yOnRight = -yOnRight;
   		}
-  		
+  	
   		
   		// figure which points are inside the island/wall
   		
   		for (int i = 0; i < 8; i++) {
   			if (!isIn(island, coordinates[i])) {
-  	  			Sound.beep();
   				coordinates[i] = null;
   			}
   		}
-  		
+  		  		
   		// go in clockwise direction until encountering the point
   		// that can get the maximum of places by only going counter clockwise
   		int offset = 0;

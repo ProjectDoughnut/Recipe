@@ -3,9 +3,8 @@ package ca.mcgill.ecse211.Light;
 
 import ca.mcgill.ecse211.Main.Navigation;
 import ca.mcgill.ecse211.Odometer.OdometryCorrector;
-import ca.mcgill.ecse211.Odometer.Odometer;
-
 import lejos.hardware.Sound;
+import ca.mcgill.ecse211.Odometer.Odometer;
 
 /**
  * 
@@ -116,8 +115,13 @@ public class LightLocalizer implements LightController{
 				
 				lineAngles[lineCount] = linePos[2];
 
-				Sound.beep();
-
+				try {
+					Thread.sleep(50);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
 				lineCount++;
 
 			}
@@ -144,7 +148,6 @@ public class LightLocalizer implements LightController{
 
 			nav.syncTravelTo(1, 1);
 			nav.turnTo(odo.getXYT()[2], 1);
-			Sound.beep();
 			this.state = LocalizationState.DONE;
 			break;
 		case DONE:

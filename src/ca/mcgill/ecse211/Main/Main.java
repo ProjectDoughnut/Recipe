@@ -6,8 +6,6 @@ import ca.mcgill.ecse211.Ultrasonic.*;
 import ca.mcgill.ecse211.Ultrasonic.USLocalizer.LocalizationType;
 import ca.mcgill.ecse211.Color.ColorClassifier;
 import ca.mcgill.ecse211.Color.ColorClassifier.RingColors;
-import ca.mcgill.ecse211.Gyro.AngleCorrection;
-import ca.mcgill.ecse211.Gyro.AngleSampler;
 import ca.mcgill.ecse211.Color.ColorPoller;
 import ca.mcgill.ecse211.Light.LightLocalizer;
 import ca.mcgill.ecse211.Light.LightPoller;
@@ -29,6 +27,7 @@ import lejos.hardware.sensor.UARTSensor;
 import lejos.robotics.SampleProvider;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.Map;
 
 import org.json.simple.parser.ParseException;
@@ -115,8 +114,6 @@ public class Main {
 
 	public static final float[][] gameArea = {{1,1}, {7,7}};
 
-	private static boolean red = false;
-	private static boolean green = false;
 	private static int corner;
 	private static int[] cornerXY = new int[2];
 	private static float[][] island = new float[2][2];
@@ -125,7 +122,7 @@ public class Main {
 	private static float[] tree = new float[2];
 	public static float[][] pathToTree;
 	private static RingColors targetRing;
-	private static final String SERVER_IP = "192.168.2.31";
+	private static final String SERVER_IP = "192.168.2.45";
 	private static final int TEAM_NUMBER = 2;
 	// Enable/disable printing of debug info from the WiFi class
 	private static final boolean ENABLE_DEBUG_WIFI_PRINT = false;
@@ -243,6 +240,9 @@ public class Main {
 					e.printStackTrace();
 				}
 
+
+				// three beeps
+
 				if (corner == 1) {
 					odo.setXYT(7*TILE_SIZE, 1*TILE_SIZE, 270);
 					cornerXY[0] = 7;
@@ -307,6 +307,9 @@ public class Main {
 				e.printStackTrace();
 			}
 
+			Sound.beep();
+			Sound.beep();
+			Sound.beep();
 
 			if (corner == 0) {
 				cornerXY[0] = 1;
@@ -350,6 +353,12 @@ public class Main {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			// beeps 3 times
+
+			Sound.beep();
+			Sound.beep();
+			Sound.beep();
+
 			float[] originCoordinate = paths[paths.length -1];
 
 			// start ring collection thread
@@ -381,7 +390,8 @@ public class Main {
 				nav.travelTo(paths[i][0], paths[i][1]);
 			}
 
-			nav.travelTo(cornerXY[0], cornerXY[1]);
+			// unneeded
+			nav.travelTo(cornerXY[0], cornerXY[1]);  
 
 			Thread navBackThread = new Thread(nav);
 			navBackThread.start();
@@ -393,13 +403,13 @@ public class Main {
 				e.printStackTrace();
 			}
 
-			Sound.playNote(Sound.XYLOPHONE, 500, 500);
+			Sound.beep();
+			Sound.beep();
+			Sound.beep();
+			Sound.beep();
+			Sound.beep();
 
-			//			
-			//			
-			//			Thread lsCorrectThread = new Thread(lsCorrectorPoller);
-			//			lsCorrectThread.start();
-
+			//			Sound.playNote(Sound.XYLOPHONE, 500, 500);
 
 		}
 
@@ -426,64 +436,82 @@ public class Main {
 			Map data = conn.getData();
 
 			int greenTeam = ((Long) data.get("GreenTeam")).intValue();
+			int redTeam = ((Long) data.get("RedTeam")).intValue();
+
+			if (greenTeam != TEAM_NUMBER && redTeam != TEAM_NUMBER) return;
+			
+			float[] startHome = new float[2];
+			float[] endHome = new float[2];
+			float[] tunnel_LL = new float[2];
+			float[] tunnel_UR = new float[2];
+
 			if (greenTeam == TEAM_NUMBER) {
-				green = true;
 				corner = ((Long) data.get("GreenCorner")).intValue();
-				float[] startHome = {((Long) data.get("Green_LL_x")).intValue(), ((Long) data.get("Green_LL_y")).intValue()};
-				float[] endHome = {((Long) data.get("Green_UR_x")).intValue(), ((Long) data.get("Green_UR_y")).intValue()};
+				startHome = new float[] {((Long) data.get("Green_LL_x")).intValue(), ((Long) data.get("Green_LL_y")).intValue()};
+				endHome = new float[]{((Long) data.get("Green_UR_x")).intValue(), ((Long) data.get("Green_UR_y")).intValue()};
 				home[0] = startHome;
 				home[1] = endHome;
-				
-				float[] startIsland = {((Long) data.get("Island_LL_x")).intValue() , ((Long) data.get("Island_LL_y")).intValue()};
-				float[] endIsland = {((Long) data.get("Island_UR_x")).intValue(), ((Long) data.get("Island_UR_y")).intValue()};
-				
-				if (startIsland[0] > gameArea[1][0]) {
-					startIsland[0] = gameArea[1][0];
-				} else if (startIsland[0] < gameArea[0][0]) {
-					startIsland[0] = gameArea[0][0];
-				}
-				
-				if (startIsland[1] > gameArea[1][1]) {
-					startIsland[1] = gameArea[1][1];
-				} else if (startIsland[1] < gameArea[0][1]) {
-					startIsland[1] = gameArea[0][1];
-				}				
-				
-				if (endIsland[0] > gameArea[1][0]) {
-					endIsland[0] = gameArea[1][0];
-				} else if (endIsland[0] < gameArea[0][0]) {
-					endIsland[0] = gameArea[0][0];
-				}
-				
-				if (endIsland[0] > gameArea[1][0]) {
-					endIsland[0] = gameArea[1][0];
-				} else if (endIsland[0] < gameArea[0][0]) {
-					endIsland[0] = gameArea[0][0];
-				}
-				
-				island[0] = startIsland;
-				island[1] = endIsland;
-				float[] tunnel_LL = {((Long) data.get("TNG_LL_x")).intValue(), ((Long) data.get("TNG_LL_y")).intValue()};
-				float[] tunnel_UR = {((Long) data.get("TNG_UR_x")).intValue(), ((Long) data.get("TNG_UR_y")).intValue()};
 
-				if (startIsland[1] - endHome[1] > 0) {
-					// basic case
-					tunnel[0] = tunnel_LL;
-					tunnel[1] = tunnel_UR;
-				} else if(startHome[1] - endIsland[1] > 0) {
-					tunnel[0] = tunnel_UR;
-					tunnel[1] = tunnel_LL;
-				} else if (endIsland[0] - startHome[0]  > 0 ) {
-					tunnel[0] = new float[] {tunnel_LL[0], tunnel_UR[1]};
-					tunnel[1] = new float[] {tunnel_UR[0], tunnel_LL[1]};
-				} else if (endHome[0] - startIsland[0]  > 0) {
-					tunnel[1] = new float[] {tunnel_LL[0], tunnel_UR[1]};
-					tunnel[0] = new float[] {tunnel_UR[0], tunnel_LL[1]};
-				}
-
+				tunnel_LL = new float[] {((Long) data.get("TNG_LL_x")).intValue(), ((Long) data.get("TNG_LL_y")).intValue()};
+				tunnel_UR = new float[] {((Long) data.get("TNG_UR_x")).intValue(), ((Long) data.get("TNG_UR_y")).intValue()};
 				tree[0] = ((Long) data.get("TG_x")).intValue(); 
 				tree[1] = ((Long) data.get("TG_y")).intValue();
 
+			} else if (redTeam == TEAM_NUMBER) {
+				corner = ((Long) data.get("RedCorner")).intValue();
+				startHome = new float[] {((Long) data.get("Red_LL_x")).intValue(), ((Long) data.get("Red_LL_y")).intValue()};
+				endHome = new float[]{((Long) data.get("Red_UR_x")).intValue(), ((Long) data.get("Red_UR_y")).intValue()};
+				home[0] = startHome;
+				home[1] = endHome;
+
+				tunnel_LL = new float[] {((Long) data.get("TNR_LL_x")).intValue(), ((Long) data.get("TNR_LL_y")).intValue()};
+				tunnel_UR = new float[] {((Long) data.get("TNR_UR_x")).intValue(), ((Long) data.get("TNR_UR_y")).intValue()};
+				tree[0] = ((Long) data.get("TR_x")).intValue(); 
+				tree[1] = ((Long) data.get("TR_y")).intValue();
+			}
+
+			float[] startIsland = {((Long) data.get("Island_LL_x")).intValue() , ((Long) data.get("Island_LL_y")).intValue()};
+			float[] endIsland = {((Long) data.get("Island_UR_x")).intValue(), ((Long) data.get("Island_UR_y")).intValue()};
+			if (startIsland[0] > gameArea[1][0]) {
+				startIsland[0] = gameArea[1][0];
+			} else if (startIsland[0] < gameArea[0][0]) {
+				startIsland[0] = gameArea[0][0];
+			}
+
+			if (startIsland[1] > gameArea[1][1]) {
+				startIsland[1] = gameArea[1][1];
+			} else if (startIsland[1] < gameArea[0][1]) {
+				startIsland[1] = gameArea[0][1];
+			}				
+
+			if (endIsland[0] > gameArea[1][0]) {
+				endIsland[0] = gameArea[1][0];
+			} else if (endIsland[0] < gameArea[0][0]) {
+				endIsland[0] = gameArea[0][0];
+			}
+
+			if (endIsland[1] > gameArea[1][1]) {
+				endIsland[1] = gameArea[1][1];
+			} else if (endIsland[1] < gameArea[0][1]) {
+				endIsland[1] = gameArea[0][1];
+			}
+
+			island[0] = startIsland;
+			island[1] = endIsland;
+
+			if (startIsland[1] - endHome[1] > 0) {
+				// basic case
+				tunnel[0] = tunnel_LL;
+				tunnel[1] = tunnel_UR;
+			} else if(startHome[1] - endIsland[1] > 0) {
+				tunnel[0] = tunnel_UR;
+				tunnel[1] = tunnel_LL;
+			} else if (endIsland[0] - startHome[0]  > 0 ) {
+				tunnel[0] = new float[] {tunnel_LL[0], tunnel_UR[1]};
+				tunnel[1] = new float[] {tunnel_UR[0], tunnel_LL[1]};
+			} else if (endHome[0] - startIsland[0]  > 0) {
+				tunnel[1] = new float[] {tunnel_LL[0], tunnel_UR[1]};
+				tunnel[0] = new float[] {tunnel_UR[0], tunnel_LL[1]};
 			}
 
 

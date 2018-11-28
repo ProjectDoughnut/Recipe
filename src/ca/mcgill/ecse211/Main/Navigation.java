@@ -2,7 +2,6 @@ package ca.mcgill.ecse211.Main;
 
 import java.util.ArrayList;
 
-import ca.mcgill.ecse211.Gyro.AngleSampler;
 import ca.mcgill.ecse211.Odometer.OdometryCorrector;
 import ca.mcgill.ecse211.Odometer.Odometer;
 import lejos.hardware.Button;
@@ -82,7 +81,6 @@ public class Navigation extends Thread{
 				break;
 			}
 			double[] coords = this._coordsList.remove(0);
-			Sound.beep();
 			this._travelTo(coords[0], coords[1], false);
 
 			//			if (selfCorrecting) {
@@ -132,7 +130,6 @@ public class Navigation extends Thread{
 
 		// turn to the correct direction
 		this._turnTo(theta, deltaTheta);
-		Sound.beep();
 		// move until destination is reached
 		// while loop is used in case of collision override
 		leftMotor.setSpeed(FORWARD_SPEED);
@@ -141,7 +138,6 @@ public class Navigation extends Thread{
 		leftMotor.forward();
 		rightMotor.forward();
 		this.navigating = true;
-		Sound.beep();
 		// @todo might consider using rotate function for fix amount of distance using the .rotate instead
 		while(true) {
 
@@ -195,7 +191,6 @@ public class Navigation extends Thread{
 		leftMotor.stop(true);
 		rightMotor.stop(false);
 		this.navigating = false;
-		Sound.twoBeeps();
 		return true;
 	}
 

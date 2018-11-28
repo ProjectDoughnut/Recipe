@@ -3,7 +3,6 @@ package ca.mcgill.ecse211.Ultrasonic;
 
 import ca.mcgill.ecse211.Light.LightLocalizer;
 import ca.mcgill.ecse211.Odometer.Odometer;
-import lejos.hardware.Sound;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
 
@@ -116,7 +115,6 @@ public class USLocalizer extends Thread implements UltrasonicController{
 						leftMotor.stop(true);
 						rightMotor.stop(false);
 						odo.setTheta(0);
-						Sound.twoBeeps();
 						this.state = LocalizationState.SEEK;
 					} 
 					//If it is not too far from the wall, start moving counterclockwise until it is
@@ -132,7 +130,6 @@ public class USLocalizer extends Thread implements UltrasonicController{
 						leftMotor.stop(true);
 						rightMotor.stop(false);
 						thetaA = odo.getXYT()[2];
-						Sound.beep();
 						leftMotor.rotate(convertAngle(odo.WHEEL_RAD, odo.TRACK,-thetaA), true);
 						rightMotor.rotate(-convertAngle(odo.WHEEL_RAD, odo.TRACK, -thetaA), false);
 						this.state = LocalizationState.SEEK_2;
@@ -149,7 +146,6 @@ public class USLocalizer extends Thread implements UltrasonicController{
 						leftMotor.stop(true);
 						rightMotor.stop(false);
 						thetaB = odo.getXYT()[2] - 360;
-						Sound.beep();
 						this.state = LocalizationState.CORRECTION;
 					} 
 					//If no falling edge, keep moving counterclockwise
