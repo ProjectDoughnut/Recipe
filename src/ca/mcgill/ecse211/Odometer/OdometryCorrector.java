@@ -31,7 +31,7 @@ public class OdometryCorrector implements TwoLightController {
 
 	private static final float lightThreshold = 47.0f;
 	private static final double sensorDistance = 12.3; 
-	private static final float ERROR_THRESHOLD = 15.0f;
+	private static final float ERROR_THRESHOLD = 11.0f;
 
 	private static final int MIN_CORRECTION_FILTER = 2;
 	private static final int MAX_CORRECTION_FILTER = 40;
