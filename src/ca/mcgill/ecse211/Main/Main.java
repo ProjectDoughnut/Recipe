@@ -35,48 +35,56 @@ import org.json.simple.parser.ParseException;
 import ca.mcgill.ecse211.WiFiClient.WifiConnection;
 import lejos.hardware.Button;
 
-
 /**
- * 
- * @author Binyuan Sun and Alexandra Livadas
  *
- * The starting point of the robot's program. All motors, sensors and other constants required are defined here.
- * Upon launch of the program the user will be prompted and based on the user's action a set of instructions will
- * be carried out by the robot. 
+ * The starting point of the robot's program. All motors, sensors and 
+ * other constants required are defined here. Upon launch of the program 
+ * the user will be prompted and based on the user's action a set of
+ * instructions will be carried out by the robot. 
  * 
- * Description of code flow: 1. Robot takes in parameters from the server 2. Sets up all the 
- * constructors, ultrasonic, light, odometer, navigation, etc 3. Ask for user input 4. Robot 
- * sets USLocal to FALLING_EDGE method 5. UltrasonicPoller thread is atarted as well as the LightPoller
- * thread 6. Odometer and OdometryCorrector threads are started in parallel 7. Robot starts ultrasonic
- * localization in the USLocalizer class where method process() is called, Once ultrasonic localization ends,
- * LightLocalizer class's process() method is called and the robot uses "lsSensor" on "lsPort" value to read 
- * the black lines. The robot sweeps the lines by rotating 360 degrees and trigonometry is used to localize 
- * the robot to the starting point 8. The code then checks which coordinates the robot is starting from. 
- * The odometer reading is set accordingly 9. The pathing method in the Navigation class takes in the starting
- * corner, tunnel and tree coordinates from what the server provided and calculates the path the robot needs
- * to take and returns it in a two-dimentional float array. For further details on how the pathing method 
- * works look at Software Documentation Version x section xyz 10. The navigation thread is started and then 
- * joined with other threads, the robot starts travelling towards the tree 11. The odometryCorrector fixes
- * the heading if the x and y errors are greater than (Bin help). The navigation thread is paused while
- * the heading is corrected. For more details look at OdometryCorrector class. The nav thread resumes
- * once the angle correction is finished 12. All of the coordinates except for the tree's are saved in an 
- * array called originCoordinate 13. The RingCollection class takes in the originCoordinate which makes the robot 
- * stop one tile away from the tree 14. The ColorPoller thread is started and then joined with the other threads. 
- * The OdometryCorrector is paused when the ColorPoller thread is running. It resumes once 4 sides of the trees 
- * are visited.
+ * Description of code flow: 1. Robot takes in parameters from the server 
+ * 2. Sets up all the constructors, ultrasonic, light, odometer, navigation,
+ * etc 3. Ask for user input 4. Robot sets USLocal to FALLING_EDGE method
+ * 5. UltrasonicPoller thread is atarted as well as the LightPoller thread 
+ * 6. Odometer and OdometryCorrector threads are started in parallel 
+ * 7. Robot starts ultrasonic localization in the USLocalizer class where 
+ * method process() is called, Once ultrasonic localization ends, LightLocalizer
+ * class's process() method is called and the robot uses "lsSensor" on "lsPort" 
+ * value to read the black lines. The robot sweeps the lines by rotating 360 
+ * degrees and trigonometry is used to localize the robot to the starting 
+ * point 8. The code then checks which coordinates the robot is starting from. 
+ * The odometer reading is set accordingly 9. The pathing method in the Navigation
+ * class takes in the starting corner, tunnel and tree coordinates from what 
+ * the server provided and calculates the path the robot needs to take and 
+ * returns it in a two-dimentional float array. For further details on how 
+ * the pathing method works look at Software Documentation [Navigation 3.0 & 4.0].
+ * The navigation thread is started and then joined with other threads, the 
+ * robot starts travelling towards the tree 11. The odometryCorrector fixes
+ * the heading if the x and y errors are greater than a empirically determined
+ * threshold. For further details look at Software Documentation [Odometry Correction 2.0] 
+ * and the OdometryCorrector class. The navigation thread is paused while 
+ * the heading is corrected.  The nav thread resumes once the angle correction 
+ * is finished 12. All of the coordinates except for the tree's are saved in an 
+ * array called originCoordinate 13. The RingCollection class takes in the 
+ * originCoordinate which makes the robot stop one tile away from the tree 14. 
+ * The ColorPoller thread is started and then joined with the other threads. 
+ * 15. The robot travels to the first side and the claw is opened. 15. The robot 
+ * moves forward and closes the claw and moves backwards which pulls the ring
+ * on the upper branch into the basket. Simultaneously the upper part of the 
+ * tray pushes the ring into the basket as well. For further details look at 
+ * the software documentation [Ring Collection 1.0 & 2.0] 16. After the ring
+ * collector thread dies, a for loop goes over the path array in reverse and 
+ * puts the coordinates into Navigation's travelTo method 17. A new navigation 
+ * thread brings the robot back to the 0th coordinate in the array 18. The 
+ * starting position is passed into the travelTo method which brings the robot
+ * to the starting corner 19. Xylophone sound is played notifying the user that all 
+ * tasks are complete
  * 
- * TO BE CONTINUED
- * 
- * Threads in use - We have a total of x (waiting for everything to be done)
- * threads. 1 color poller thread for the color sensor, 1 light poller thread for the two
- * threads that detect lines, 1 odometer thread, 1 odometry display thread,
- * 1 ultrasonic poller thread and 1 odometry correction thread.
  * We use 'lock's to pause our threads, then unlock it for it to continue running
- * For efficiency we join threads after to. Threads also sleep for a period of time 
- * in some classes for (BIN Help). 
+ * Threads also sleep for a period of time for smooth transition of actions 
  * 
- * Current number of lines of code: (update at the end), Code estimation: (update
- * at the end) (number of semicolons).
+ * @author Binyuan Sun
+ * @author Alexandra Livadas
  */
 
 public class Main {
@@ -259,7 +267,6 @@ public class Main {
 			float[] originCoordinate = paths[paths.length -1];
 
 			// start ring collection thread
-
 
 
 			RingCollection ringCollector = new RingCollection(odo, nav, clawServo, originCoordinate, tunnel, tree, island, WHEEL_RAD);
